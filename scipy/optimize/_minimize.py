@@ -30,6 +30,7 @@ from .lbfgsb import _minimize_lbfgsb
 from .tnc import _minimize_tnc
 from .cobyla import _minimize_cobyla
 from .slsqp import _minimize_slsqp
+from .fire import _minimize_fire
 
 def minimize(fun, x0, args=(), method='BFGS', jac=None, hess=None,
              hessp=None, bounds=None, constraints=(), tol=None,
@@ -363,6 +364,8 @@ def minimize(fun, x0, args=(), method='BFGS', jac=None, hess=None,
     elif meth == 'slsqp':
         return _minimize_slsqp(fun, x0, args, jac, bounds,
                                constraints, **options)
+    elif meth == 'fire':
+        return _minimize_fire(x0, jac, args, **options)
     else:
         raise ValueError('Unknown solver %s' % method)
 
