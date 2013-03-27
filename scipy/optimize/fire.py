@@ -86,15 +86,23 @@ def fmin_fire(func, x0, fprime=None, args=(), approx_grad=False,
     return res
 
 
-def _minimize_fire(x0, fprime, tol=1.0e-3, maxiter=100000, dt=0.1, dtmax=1.0,
-                   maxmove=0.1, Nmin=5, finc=1.1, fdec=0.5, astart=0.1,
-                   fa=0.99, disp=False):
+def _minimize_fire(fun, x0, jac=None, tol=1.0e-3, maxiter=100000, dt=0.1,
+                   dtmax=1.0, maxmove=0.1, Nmin=5, finc=1.1, fdec=0.5,
+                   astart=0.1, fa=0.99, disp=False, eps=1e-8):
 
     coords = np.array(x0)
     a = astart
     Nsteps = 0
     n = len(coords)
     v = np.zeros(n)
+
+    if jac is None:
+        def fprime(x):
+            g = opt.approx_fprime(x, fun, eps)
+            return g
+
+    else:
+        fprime = jac
 
     for steps in range(maxiter):
 
@@ -142,9 +150,11 @@ def _minimize_fire(x0, fprime, tol=1.0e-3, maxiter=100000, dt=0.1, dtmax=1.0,
 
 
 def test_fire():
-    from scipy.optimize import rosen_der
+    from scipy.optimize import rosen, rosen_der
     x = [1.3, 0.7, 0.8, 1.9, 1.2]
-    res = _minimize_fire(x, rosen_der)
+    res = _minimize_fire(rosen, x, rosen_der)
+    print(res)
+    res = _minimize_fire(rosen, x)
     print(res)
 
 if __name__ == "__main__":
