@@ -178,10 +178,6 @@ def configuration(parent_package='',top_path=None):
     return config
 
 def setup_package():
-    try:
-        import setuptools
-    except ImportError:
-        pass
 
     # Rewrite the version file everytime
     write_version_py()
@@ -213,15 +209,19 @@ def setup_package():
         # They are required to succeed without Numpy for example when
         # pip is used to install Scipy when Numpy is not yet present in
         # the system.
-        from distutils.core import setup
+        try:
+            from setuptools import setup
+        except ImportError:
+            from distutils.core import setup
 
         FULLVERSION, GIT_REVISION = get_version_info()
         metadata['version'] = FULLVERSION
     else:
         from numpy.distutils.core import setup
 
-        if not ISRELEASED or 'sdist' in sys.argv[1:]:
-            # Generate Cython sources
+        cwd = os.path.abspath(os.path.dirname(__file__))
+        if not os.path.exists(os.path.join(cwd, 'PKG-INFO')):
+            # Generate Cython sources, unless building from source release
             generate_cython()
 
         metadata['configuration'] = configuration

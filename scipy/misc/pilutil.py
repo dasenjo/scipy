@@ -24,7 +24,7 @@ except ImportError:
 
 
 __all__ = ['fromimage','toimage','imsave','imread','bytescale',
-           'imrotate','imresize','imshow','imfilter','radon']
+           'imrotate','imresize','imshow','imfilter']
 
 
 # Returns a byte-scaled image
@@ -448,26 +448,7 @@ def imfilter(arr,ftype):
               }
 
     im = toimage(arr)
-    if ftype not in _tdict.keys():
+    if ftype not in _tdict:
         raise ValueError("Unknown filter type.")
     return fromimage(im.filter(_tdict[ftype]))
 
-
-def radon(arr,theta=None):
-    """`radon` is deprecated in scipy 0.11, and will be removed in 0.12
-
-    For this functionality, please use the "radon" function in scikits-image.
-
-    """
-    if theta is None:
-        theta = mgrid[0:180]
-    s = zeros((arr.shape[1],len(theta)), float)
-    k = 0
-    for th in theta:
-        im = imrotate(arr,-th)
-        s[:,k] = sum(im,axis=0)
-        k += 1
-    return s
-
-
-radon = numpy.deprecate(radon)

@@ -203,6 +203,18 @@ class TestGeom(TestCase):
         assert_array_almost_equal(vals,expected)
         assert_array_almost_equal(vals_sf,1-expected)
 
+class TestTruncnorm(TestCase):
+    def test_ppf_ticket1131(self):
+        vals = stats.truncnorm.ppf([-0.5,0,1e-4,0.5, 1-1e-4,1,2], -1., 1.,
+                               loc=[3]*7, scale=2)
+        expected = np.array([np.nan, 1, 1.00056419, 3, 4.99943581, 5, np.nan])
+        assert_array_almost_equal(vals, expected)
+
+    def test_isf_ticket1131(self):
+        vals = stats.truncnorm.isf([-0.5,0,1e-4,0.5, 1-1e-4,1,2], -1., 1.,
+                                   loc=[3]*7, scale=2)
+        expected = np.array([np.nan, 5, 4.99943581, 3, 1.00056419, 1, np.nan])
+        assert_array_almost_equal(vals, expected)
 
 class TestHypergeom(TestCase):
     def test_rvs(self):
@@ -328,7 +340,7 @@ class TestDLaplace(TestCase):
         assert_(val.dtype.char in typecodes['AllInteger'])
 
 def test_rvgeneric_std():
-    """Regression test for #1191"""
+    # Regression test for #1191
     assert_array_almost_equal(stats.t.std([5, 6]), [1.29099445, 1.22474487])
 
 class TestRvDiscrete(TestCase):
@@ -418,17 +430,15 @@ class TestSkellam(TestCase):
 
 class TestLognorm(TestCase):
     def test_pdf(self):
-        ''' Regression test for Ticket #1471: 
-        cornercase avoid nan with 0/0 situation
-        '''
-        pdf = stats.lognorm.pdf(0,1)
-        assert_almost_equal(pdf, 0.0)
+        # Regression test for Ticket #1471: avoid nan with 0/0 situation
+        with np.errstate(divide='ignore'):
+            pdf = stats.lognorm.pdf([0, 0.5, 1], 1)
+            assert_array_almost_equal(pdf, [0.0, 0.62749608, 0.39894228])
+
 
 class TestBeta(TestCase):
     def test_logpdf(self):
-        ''' Regression test for Ticket #1326: 
-        cornercase avoid nan with 0*log(0) situation
-        '''
+        # Regression test for Ticket #1326: avoid nan with 0*log(0) situation
         logpdf = stats.beta.logpdf(0,1,0.5)
         assert_almost_equal(logpdf, -0.69314718056)
         logpdf = stats.beta.logpdf(0,0.5,1)
@@ -451,7 +461,7 @@ class TestBetaPrime(TestCase):
         assert_allclose(b.pdf(x), np.exp(b.logpdf(x)))
 
 
-class TestGamma(TestCase):    
+class TestGamma(TestCase):
     def test_pdf(self):
         # a few test cases to compare with R
         pdf = stats.gamma.pdf(90, 394, scale=1./5)
@@ -459,14 +469,13 @@ class TestGamma(TestCase):
 
         pdf = stats.gamma.pdf(3, 10, scale=1./5)
         assert_almost_equal(pdf, 0.1620358)
-        
+
     def test_logpdf(self):
-        ''' Regression test for Ticket #1326: 
-        cornercase avoid nan with 0*log(0) situation
-        '''
+        # Regression test for Ticket #1326: cornercase avoid nan with 0*log(0)
+        # situation
         logpdf = stats.gamma.logpdf(0,1)
         assert_almost_equal(logpdf, 0)
-        
+
 class TestChi2(TestCase):
     # regression tests after precision improvements, ticket:1041, not verified
     def test_precision(self):
@@ -480,21 +489,21 @@ class TestArrayArgument(TestCase): #test for ticket:992
 
 class TestDocstring(TestCase):
     def test_docstrings(self):
-        """See ticket #761"""
+        # See ticket #761
         if stats.rayleigh.__doc__ is not None:
             self.assertTrue("rayleigh" in stats.rayleigh.__doc__.lower())
         if stats.bernoulli.__doc__ is not None:
             self.assertTrue("bernoulli" in stats.bernoulli.__doc__.lower())
 
     def test_no_name_arg(self):
-        """If name is not given, construction shouldn't fail.  See #1508."""
+        # If name is not given, construction shouldn't fail.  See #1508.
         stats.rv_continuous()
         stats.rv_discrete()
 
 
 class TestEntropy(TestCase):
     def test_entropy_positive(self):
-        """See ticket #497"""
+        # See ticket #497
         pk = [0.5,0.2,0.3]
         qk = [0.1,0.25,0.65]
         eself = stats.entropy(pk,pk)
@@ -512,6 +521,11 @@ class TestEntropy(TestCase):
         S = stats.entropy(pk, qk)
         S2 = stats.entropy(pk, qk, base=2.)
         assert_(abs(S/S2 - np.log(2.)) < 1.e-5)
+
+    def test_entropy_zero(self):
+        # Test for PR-479
+        assert_almost_equal(stats.entropy([0, 1, 2]), 0.63651416829481278,
+                            decimal=12)
 
 
 
@@ -698,8 +712,7 @@ class TestFrozen(TestCase):
         result = dist.moment(2, a)
         assert_equal(result_f, result)
 
-    def test_regression_02(self):
-        """Regression test for ticket #1293."""
+    def test_regression_ticket_1293(self):
         # Create a frozen distribution.
         frozen = stats.lognorm(1)
         # Call one of its methods that does not take any keyword arguments.
@@ -810,21 +823,18 @@ class TestExpect(TestCase):
 
 
 def test_regression_ticket_1316():
-    """Regression test for ticket #1316."""
     # The following was raising an exception, because _construct_default_doc()
     # did not handle the default keyword extradoc=None.  See ticket #1316.
     g = stats.distributions.gamma_gen(name='gamma')
 
 
 def test_regression_ticket_1326():
-    """Regression test for ticket #1326."""
     #adjust to avoid nan with 0*log(0)
     assert_almost_equal(stats.chi2.pdf(0.0, 2), 0.5, 14)
 
 
 def test_regression_tukey_lambda():
-    """ Make sure that Tukey-Lambda distribution correctly handles non-positive lambdas.
-    """
+    # Make sure that Tukey-Lambda distribution correctly handles non-positive lambdas.
     x = np.linspace(-5.0, 5.0, 101)
 
     olderr = np.seterr(divide='ignore')
@@ -847,7 +857,6 @@ def test_regression_tukey_lambda():
 
 
 def test_regression_ticket_1421():
-    """Regression test for ticket #1421 - correction discrete docs."""
     assert_('pdf(x, mu, loc=0, scale=1)' not in stats.poisson.__doc__)
     assert_('pmf(x,' in stats.poisson.__doc__)
 
@@ -903,7 +912,7 @@ def test_frozen_fit_ticket_1536():
     assert_almost_equal(params, expected, decimal=4)
 
 def test_regression_ticket_1530():
-    """Check the starting value works for Cauchy distribution fit."""
+    # Check the starting value works for Cauchy distribution fit.
     np.random.seed(654321)
     rvs = stats.cauchy.rvs(size=100)
     params = stats.cauchy.fit(rvs)
@@ -912,8 +921,7 @@ def test_regression_ticket_1530():
 
 
 def test_tukeylambda_stats_ticket_1545():
-    """Some test for the variance and kurtosis of the Tukey Lambda distr."""
-
+    # Some test for the variance and kurtosis of the Tukey Lambda distr.
     # See test_tukeylamdba_stats.py for more tests.
 
     mv = stats.tukeylambda.stats(0, moments='mvsk')
@@ -933,7 +941,6 @@ def test_tukeylambda_stats_ticket_1545():
 
 
 def test_poisson_logpmf_ticket_1436():
-    """Regression test for #1436, poisson.logpmf precision."""
     assert_(np.isfinite(stats.poisson.logpmf(1500, 200)))
 
 
@@ -1002,10 +1009,8 @@ def test_ksone_fit_freeze():
 
 
 def test_norm_logcdf():
-    """Test precision of the logcdf of the normal distribution.
-
-    This precision was enhanced in ticket 1614.
-    """
+    # Test precision of the logcdf of the normal distribution.
+    # This precision was enhanced in ticket 1614.
     x = -np.asarray(list(range(0, 120, 4)))
     # Values from R
     expected = [-0.69314718, -10.36010149, -35.01343716, -75.41067300,
