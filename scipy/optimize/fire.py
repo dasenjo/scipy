@@ -86,7 +86,7 @@ def fmin_fire(func, x0, fprime=None, args=(), approx_grad=False,
     return res
 
 
-def _minimize_fire(fun, x0, jac=None, tol=1.0e-3, maxiter=100000, dt=0.1,
+def _minimize_fire(x0, jac=None, fun=None, tol=1.0e-3, maxiter=100000, dt=0.1,
                    dtmax=1.0, maxmove=0.1, Nmin=5, finc=1.1, fdec=0.5,
                    astart=0.1, fa=0.99, disp=False, eps=1e-8):
 
@@ -97,9 +97,14 @@ def _minimize_fire(fun, x0, jac=None, tol=1.0e-3, maxiter=100000, dt=0.1,
     v = np.zeros(n)
 
     if jac is None:
-        def fprime(x):
-            g = opt.approx_fprime(x, fun, eps)
-            return g
+        if fun is not None:
+            def fprime(x):
+                return opt.approx_fprime(x, fun, eps)
+        else:
+            successful = False
+            msg = 'No function or gradient supplied.'
+            return opt.Result(nfev=0, njev=0, nit=0, message=msg, x=coords,
+                              success=successful)
 
     else:
         fprime = jac
@@ -152,9 +157,11 @@ def _minimize_fire(fun, x0, jac=None, tol=1.0e-3, maxiter=100000, dt=0.1,
 def test_fire():
     from scipy.optimize import rosen, rosen_der
     x = [1.3, 0.7, 0.8, 1.9, 1.2]
-    res = _minimize_fire(rosen, x, rosen_der)
+    res = _minimize_fire(x, jac=rosen_der)
     print(res)
-    res = _minimize_fire(rosen, x)
+    res = _minimize_fire(x, fun=rosen)
+    print(res)
+    res = _minimize_fire(x)
     print(res)
 
 if __name__ == "__main__":
