@@ -81,7 +81,7 @@ def fmin_fire(func, x0, fprime=None, args=(), approx_grad=False,
             'tol': tol,
             'maxiter': maxiter}
 
-    res = _minimize_fire(x0, fprime=jac, args=args, **opts)
+    res = _minimize_fire(x0, fprime=jac, fun=fun, args=args, **opts)
 
     return res
 
@@ -158,10 +158,13 @@ def test_fire():
     from scipy.optimize import rosen, rosen_der
     x = [1.3, 0.7, 0.8, 1.9, 1.2]
     res = _minimize_fire(x, jac=rosen_der)
+    print('\nUsing analytical gradient.')
     print(res)
     res = _minimize_fire(x, fun=rosen)
+    print('\nUsing numerical gradient.')
     print(res)
     res = _minimize_fire(x)
+    print('\nNo function or gradient.')
     print(res)
 
 if __name__ == "__main__":
