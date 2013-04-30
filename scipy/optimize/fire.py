@@ -9,26 +9,24 @@ import scipy.optimize as opt
 __all__ = ['fmin_fire']
 
 
-def fmin_fire(func, x0, fprime=None, args=(), approx_grad=False,
-              tol=1e-3, maxiter=100000, disp=None, callback=None):
+def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
+                   maxiter=100000, dt=0.1, dtmax=1.0, maxmove=0.1,
+                   Nmin=5, finc=1.1, fdec=0.5, astart=0.1, fa=0.99,
+                   disp=False, eps=1e-8):
     """
     Minimize a function func using the FIRE algorithm.
 
     Parameters
     ----------
-    func : callable f(x,*args)
-        Function to minimise.
     x0 : ndarray
         Initial guess.
-    fprime : callable fprime(x,*args)
-        The gradient of `func`.  If None, then `func` returns the function
-        value and the gradient (``f, g = func(x, *args)``), unless
-        `approx_grad` is True in which case `func` returns only ``f``.
+    jac : callable jac(x,*args)
+        The gradient of `func`.  If None, `func` must not be none.
+    func : callable f(x,*args)
+        Function to minimise. If `jac` is None then it is used to approximate
+        its gradient.
     args : sequence
-        Arguments to pass to `func` and `fprime`.
-    approx_grad : bool
-        Whether to approximate the gradient numerically (in which case
-        `func` returns only the function value).
+        Arguments to pass to `func` and `jac`.
     tol : float
         The iteration stops when the norm of the gradient is smaller than tol.
     disp : int, optional
@@ -66,30 +64,6 @@ def fmin_fire(func, x0, fprime=None, args=(), approx_grad=False,
     Phys. Rev. Lett. 97, 170201 (2006).
 
     """
-    # handle fprime/approx_grad
-    if approx_grad:
-        fun = func
-        jac = None
-    elif fprime is None:
-        fun = opt.MemoizeJac(func)
-        jac = fun.derivative
-    else:
-        fun = func
-        jac = fprime
-
-    opts = {'disp': disp,
-            'tol': tol,
-            'maxiter': maxiter}
-
-    res = _minimize_fire(x0, fprime=jac, fun=fun, args=args, **opts)
-
-    return res
-
-
-def _minimize_fire(x0, jac=None, fun=None, tol=1.0e-3, maxiter=100000, dt=0.1,
-                   dtmax=1.0, maxmove=0.1, Nmin=5, finc=1.1, fdec=0.5,
-                   astart=0.1, fa=0.99, disp=False, eps=1e-8):
-
     coords = np.array(x0)
     a = astart
     Nsteps = 0
@@ -97,9 +71,12 @@ def _minimize_fire(x0, jac=None, fun=None, tol=1.0e-3, maxiter=100000, dt=0.1,
     v = np.zeros(n)
 
     if jac is None:
-        if fun is not None:
+        if func is not None:
             def fprime(x):
-                return opt.approx_fprime(x, fun, eps)
+                return opt.approx_fprime(x, func, eps, *args)
+
+            def fun(x):
+                return func(x, *args)
         else:
             successful = False
             msg = 'No function or gradient supplied.'
@@ -107,7 +84,11 @@ def _minimize_fire(x0, jac=None, fun=None, tol=1.0e-3, maxiter=100000, dt=0.1,
                               success=successful)
 
     else:
-        fprime = jac
+        def fprime(x):
+            return jac(x, *args)
+
+        def fun(x):
+            return func(x, *args)
 
     for steps in range(maxiter):
 
@@ -160,12 +141,11 @@ def test_fire():
     res = _minimize_fire(x, jac=rosen_der)
     print('\nUsing analytical gradient.')
     print(res)
-    res = _minimize_fire(x, fun=rosen)
+    res = _minimize_fire(x, func=rosen)
     print('\nUsing numerical gradient.')
     print(res)
     res = _minimize_fire(x)
     print('\nNo function or gradient.')
     print(res)
-
 if __name__ == "__main__":
     test_fire()
