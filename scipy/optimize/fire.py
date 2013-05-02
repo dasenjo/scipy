@@ -78,11 +78,7 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
             def fun(x):
                 return func(x, *args)
         else:
-            successful = False
-            msg = 'No function or gradient supplied.'
-            return opt.Result(nfev=0, njev=0, nit=0, message=msg, x=coords,
-                              success=successful)
-
+            raise ValueError('No function or gradient supplied.')
     else:
         def fprime(x):
             return jac(x, *args)
@@ -90,7 +86,7 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
         def fun(x):
             return func(x, *args)
 
-    for steps in range(maxiter):
+    for steps in xrange(maxiter):
 
         grad = fprime(coords)
         f = np.sqrt(np.vdot(grad, grad))
@@ -122,14 +118,14 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
         coords += dr
 
         if disp:
-            print("some stuff")
+            print('Iteration %i, Gradient: %f' % (steps, f))
 
     if steps < maxiter:
         successful = True
         msg = 'Optimization terminated successfully.'
     else:
         successful = False
-        msg = 'Maximum number of iterations has been exceeded'
+        msg = 'Maximum number of iterations reached'
 
     return opt.Result(jac=grad, nfev=0, njev=steps, nit=steps,
                       message=msg, x=coords, success=successful)
