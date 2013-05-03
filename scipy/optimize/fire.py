@@ -34,6 +34,9 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
         `iprint` (i.e., `iprint` gets the value of `disp`).
     maxiter : int
         Maximum number of iterations.
+    epsilon : float
+        Step size used when approx_grad is True, for numerically calculating
+        the gradient.
 
     Returns
     -------
@@ -120,7 +123,7 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
         if disp:
             print('Iteration %i, Gradient: %f' % (steps, f))
 
-    if steps < maxiter:
+    if steps+1 < maxiter:
         successful = True
         msg = 'Optimization terminated successfully.'
     else:
@@ -132,16 +135,19 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
 
 
 def test_fire():
-    from scipy.optimize import rosen, rosen_der
-    x = [1.3, 0.7, 0.8, 1.9, 1.2]
-    res = _minimize_fire(x, jac=rosen_der)
-    print('\nUsing analytical gradient.')
+    from levi import Levi as func
+    f = func()
+
+    def grad(coords):
+        return f.getEnergyGradient(coords)[1]
+    x = [np.random.uniform(f.xmin[0], f.xmax[0]), np.random.uniform(f.xmin[1], f.xmax[1])]
+    print('\nStarting point x=', x)
+    res = _minimize_fire(x, jac=grad)
+    print('\nFIRE')
     print(res)
-    res = _minimize_fire(x, func=rosen)
-    print('\nUsing numerical gradient.')
-    print(res)
-    res = _minimize_fire(x)
-    print('\nNo function or gradient.')
-    print(res)
+    res = opt.minimize(f.getEnergy, x, method='L-BFGS-B',
+                       options={'gtol': 1e-2})
+    print('\nL-BFGS')
+    print(res, '\n')
 if __name__ == "__main__":
     test_fire()
