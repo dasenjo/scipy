@@ -13,9 +13,16 @@ from scipy.lib.six.moves import xrange
 from .sputils import isdense, isscalarlike, isintlike
 
 
-class SparseWarning(Warning): pass
-class SparseFormatWarning(SparseWarning): pass
-class SparseEfficiencyWarning(SparseWarning): pass
+class SparseWarning(Warning):
+    pass
+
+
+class SparseFormatWarning(SparseWarning):
+    pass
+
+
+class SparseEfficiencyWarning(SparseWarning):
+    pass
 
 
 # The formats that we might potentially understand.
@@ -44,6 +51,7 @@ _formats = {'csc':[0, "Compressed Sparse Column"],
 
 MAXPRINT = 50
 
+
 class spmatrix(object):
     """ This class provides a base class for all sparse matrices.  It
     cannot be instantiated.  Most of the work is provided by subclasses.
@@ -51,6 +59,7 @@ class spmatrix(object):
 
     __array_priority__ = 10.1
     ndim = 2
+
     def __init__(self, maxprint=MAXPRINT):
         self.format = self.__class__.__name__[:3]
         self._shape = None
@@ -66,7 +75,7 @@ class spmatrix(object):
             raise ValueError("Only two-dimensional sparse arrays "
                                      "are supported.")
         try:
-            shape = int(shape[0]),int(shape[1]) #floats, other weirdness
+            shape = int(shape[0]),int(shape[1])  # floats, other weirdness
         except:
             raise TypeError('invalid shape')
 
@@ -118,7 +127,7 @@ class spmatrix(object):
             maxprint = MAXPRINT
         return maxprint
 
-    #def typecode(self):
+    # def typecode(self):
     #    try:
     #        typ = self.dtype.char
     #    except AttributeError:
@@ -148,22 +157,22 @@ class spmatrix(object):
     def __str__(self):
         maxprint = self.getmaxprint()
 
-        A   = self.tocoo()
+        A = self.tocoo()
         nnz = self.getnnz()
 
         # helper function, outputs "(i,j)  v"
         def tostr(row,col,data):
             triples = zip(list(zip(row,col)),data)
-            return '\n'.join( [ ('  %s\t%s' % t) for t in triples] )
+            return '\n'.join([('  %s\t%s' % t) for t in triples])
 
         if nnz > maxprint:
             half = maxprint // 2
-            out  = tostr(A.row[:half], A.col[:half], A.data[:half])
+            out = tostr(A.row[:half], A.col[:half], A.data[:half])
             out += "\n  :\t:\n"
             half = maxprint - maxprint//2
             out += tostr(A.row[-half:], A.col[-half:], A.data[-half:])
         else:
-            out  = tostr(A.row, A.col, A.data)
+            out = tostr(A.row, A.col, A.data)
 
         return out
 
@@ -227,7 +236,7 @@ class spmatrix(object):
         return self.tocsr().__radd__(other)
 
     def __sub__(self, other):   # self - other
-        #note: this can't be replaced by self + (-other) for unsigned types
+        # note: this can't be replaced by self + (-other) for unsigned types
         return self.tocsr().__sub__(other)
 
     def __rsub__(self, other):  # other - self
@@ -250,7 +259,7 @@ class spmatrix(object):
                 return self._mul_vector(other)
             elif other.shape == (N, 1):
                 return self._mul_vector(other.ravel()).reshape(M, 1)
-            elif other.ndim == 2  and other.shape[0] == N:
+            elif other.ndim == 2 and other.shape[0] == N:
                 return self._mul_multivector(other)
 
         if isscalarlike(other):
@@ -315,7 +324,7 @@ class spmatrix(object):
     def _mul_sparse_matrix(self, other):
         return self.tocsr()._mul_sparse_matrix(other)
 
-    def __rmul__(self, other): # other * self
+    def __rmul__(self, other):  # other * self
         if isscalarlike(other):
             return self.__mul__(other)
         else:
@@ -369,7 +378,7 @@ class spmatrix(object):
 
             if other == 0:
                 from .construct import eye
-                return eye( self.shape[0], dtype=self.dtype )
+                return eye(self.shape[0], dtype=self.dtype)
             elif other == 1:
                 return self.copy()
             else:
@@ -382,7 +391,6 @@ class spmatrix(object):
             raise ValueError('exponent must be an integer')
         else:
             raise NotImplementedError
-
 
     def __getattr__(self, attr):
         if attr == 'A':
@@ -419,7 +427,6 @@ class spmatrix(object):
     def _imag(self):
         return self.tocsr()._imag()
 
-
     def nonzero(self):
         """nonzero indices
 
@@ -439,7 +446,6 @@ class spmatrix(object):
         A = self.tocoo()
         nz_mask = A.data != 0
         return (A.row[nz_mask],A.col[nz_mask])
-
 
     def getcol(self, j):
         """Returns a copy of column j of the matrix, as an (m x 1) sparse
@@ -473,7 +479,7 @@ class spmatrix(object):
         row_selector = csr_matrix(([1], [[0], [i]]), shape=(1,m), dtype=self.dtype)
         return row_selector * self
 
-    #def __array__(self):
+    # def __array__(self):
     #    return self.toarray()
 
     def todense(self, order=None, out=None):
@@ -574,7 +580,7 @@ class spmatrix(object):
             return self * np.asmatrix(np.ones((n, 1), dtype=self.dtype))
         elif axis is None:
             # sum over rows and columns
-            return ( self * np.asmatrix(np.ones((n, 1), dtype=self.dtype)) ).sum()
+            return (self * np.asmatrix(np.ones((n, 1), dtype=self.dtype))).sum()
         else:
             raise ValueError("axis out of bounds")
 
@@ -598,7 +604,7 @@ class spmatrix(object):
     def diagonal(self):
         """Returns the main diagonal of the matrix
         """
-        #TODO support k != 0
+        # TODO support k != 0
         return self.tocsr().diagonal()
 
     def setdiag(self, values, k=0):
@@ -634,7 +640,7 @@ class spmatrix(object):
             return out
         else:
             return np.zeros(self.shape, dtype=self.dtype, order=order)
-        
+
 
 def isspmatrix(x):
     return isinstance(x, spmatrix)

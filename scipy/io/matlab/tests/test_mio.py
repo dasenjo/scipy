@@ -47,6 +47,8 @@ from scipy.io.matlab.mio5 import MatlabObject, MatFile5Writer, \
 
 # Use future defaults to silence unwanted test warnings
 savemat_future = partial(savemat, oned_as='row')
+
+
 class MatFile5Reader_future(MatFile5Reader):
     def __init__(self, *args, **kwargs):
         sar = kwargs.get('struct_as_record')
@@ -56,6 +58,7 @@ class MatFile5Reader_future(MatFile5Reader):
 
 
 test_data_path = pjoin(dirname(__file__), 'data')
+
 
 def mlarr(*args, **kwargs):
     ''' Convenience function to return matlab-compatible 2D array
@@ -119,7 +122,7 @@ case_table4.append(
      'expected': {'testonechar': array([u('r')])},
      })
 # Cell arrays stored as object arrays
-CA = mlarr(( # tuple for object array creation
+CA = mlarr((  # tuple for object array creation
         [],
         mlarr([1]),
         mlarr([[1,2]]),
@@ -130,7 +133,7 @@ case_table5 = [
     {'name': 'cell',
      'classes': {'testcell': 'cell'},
      'expected': {'testcell': CA}}]
-CAE = mlarr(( # tuple for object array creation
+CAE = mlarr((  # tuple for object array creation
     mlarr(1),
     mlarr(2),
     mlarr([]),
@@ -225,7 +228,7 @@ case_table5.append(
     {'name': 'unicode',
      'classes': {'testunicode': 'char'},
     'expected': {'testunicode': array([u_str])}
-    })
+     })
 case_table5.append(
     {'name': 'sparse',
      'classes': {'testsparse': 'sparse'},
@@ -269,15 +272,15 @@ def types_compatible(var1, var2):
 
 def _check_level(label, expected, actual):
     """ Check one level of a potentially nested array """
-    if SP.issparse(expected): # allow different types of sparse matrices
+    if SP.issparse(expected):  # allow different types of sparse matrices
         assert_true(SP.issparse(actual))
         assert_array_almost_equal(actual.todense(),
                                   expected.todense(),
-                                  err_msg = label,
-                                  decimal = 5)
+                                  err_msg=label,
+                                  decimal=5)
         return
     # Check types are as expected
-    assert_true(types_compatible(expected, actual), \
+    assert_true(types_compatible(expected, actual),
            "Expected type %s, got %s at %s" %
                 (type(expected), type(actual), label))
     # A field in a record array may not be an ndarray
@@ -293,20 +296,20 @@ def _check_level(label, expected, actual):
                                                          label)
                 )
     ex_dtype = expected.dtype
-    if ex_dtype.hasobject: # array of objects
+    if ex_dtype.hasobject:  # array of objects
         if isinstance(expected, MatlabObject):
             assert_equal(expected.classname, actual.classname)
         for i, ev in enumerate(expected):
             level_label = "%s, [%d], " % (label, i)
             _check_level(level_label, ev, actual[i])
         return
-    if ex_dtype.fields: # probably recarray
+    if ex_dtype.fields:  # probably recarray
         for fn in ex_dtype.fields:
             level_label = "%s, field %s, " % (label, fn)
             _check_level(level_label,
                          expected[fn], actual[fn])
         return
-    if ex_dtype.type in (text_type, # string or bool
+    if ex_dtype.type in (text_type,  # string or bool
                          np.unicode_,
                          np.bool_):
         assert_equal(actual, expected, err_msg=label)
@@ -386,22 +389,22 @@ def test_round_trip():
 
 def test_gzip_simple():
     xdense = np.zeros((20,20))
-    xdense[2,3]=2.3
-    xdense[4,5]=4.5
+    xdense[2,3] = 2.3
+    xdense[4,5] = 4.5
     x = SP.csc_matrix(xdense)
 
     name = 'gzip_test'
     expected = {'x':x}
-    format='4'
+    format = '4'
 
     tmpdir = mkdtemp()
     try:
         fname = pjoin(tmpdir,name)
-        mat_stream = gzip.open( fname,mode='wb')
+        mat_stream = gzip.open(fname,mode='wb')
         savemat_future(mat_stream, expected, format=format)
         mat_stream.close()
 
-        mat_stream = gzip.open( fname,mode='rb')
+        mat_stream = gzip.open(fname,mode='rb')
         actual = loadmat(mat_stream, struct_as_record=True)
         mat_stream.close()
     finally:
@@ -410,6 +413,7 @@ def test_gzip_simple():
     assert_array_almost_equal(actual['x'].todense(),
                               expected['x'].todense(),
                               err_msg=repr(actual))
+
 
 def test_multiple_open():
     # Ticket #1039, on Windows: check that files are not left open
@@ -439,11 +443,12 @@ def test_multiple_open():
     finally:
         shutil.rmtree(tmpdir)
 
+
 def test_mat73():
     # Check any hdf5 files raise an error
     filenames = glob(
         pjoin(test_data_path, 'testhdf5*.mat'))
-    assert_true(len(filenames)>0)
+    assert_true(len(filenames) > 0)
     for filename in filenames:
         fp = open(filename, 'rb')
         assert_raises(NotImplementedError,
@@ -514,8 +519,8 @@ def test_long_field_names_in_struct():
     fldname = 'a' * lim
     cell = np.ndarray((1,2),dtype=object)
     st1 = np.zeros((1,1), dtype=[(fldname, object)])
-    cell[0,0]=st1
-    cell[0,1]=st1
+    cell[0,0] = st1
+    cell[0,1] = st1
     mat_stream = BytesIO()
     savemat_future(BytesIO(), {'longstruct': cell}, format='5',long_field_names=True)
     #
@@ -530,13 +535,13 @@ def test_cell_with_one_thing_in_it():
     # strings in it.  It works. Make a cell array that's 1 x 1 and put
     # a string in it. It should work but, in the old days, it didn't.
     cells = np.ndarray((1,2),dtype=object)
-    cells[0,0]='Hello'
-    cells[0,1]='World'
+    cells[0,0] = 'Hello'
+    cells[0,1] = 'World'
     mat_stream = BytesIO()
     savemat_future(BytesIO(), {'x': cells}, format='5')
 
     cells = np.ndarray((1,1),dtype=object)
-    cells[0,0]='Hello, world'
+    cells[0,0] = 'Hello, world'
     mat_stream = BytesIO()
     savemat_future(BytesIO(), {'x': cells}, format='5')
 
@@ -593,9 +598,9 @@ def test_save_dict():
         stream.seek(0)
         vals = loadmat(stream)['dict']
         assert_equal(set(vals.dtype.names), set(['a', 'b']))
-        if is_ordered: # Input was ordered, output in ab order
+        if is_ordered:  # Input was ordered, output in ab order
             assert_array_equal(vals, ab_exp)
-        else: # Not ordered input, either order output
+        else:  # Not ordered input, either order output
             if vals.dtype.names[0] == 'a':
                 assert_array_equal(vals, ab_exp)
             else:
@@ -651,7 +656,7 @@ def test_compression():
     compressed_len = len(stream.getvalue())
     vals = loadmat(stream)
     yield assert_array_equal, vals['arr'], arr
-    yield assert_true, raw_len>compressed_len
+    yield assert_true, raw_len > compressed_len
     # Concatenate, test later
     arr2 = arr.copy()
     arr2[0,0] = 1
@@ -747,7 +752,8 @@ def test_recarray():
 
 
 def test_save_object():
-    class C(object): pass
+    class C(object):
+        pass
     c = C()
     c.field1 = 1
     c.field2 = 'a string'
@@ -794,7 +800,7 @@ def test_read_opts():
     rdr = MatFile5Reader_future(stream, chars_as_strings=False)
     carr = np.atleast_2d(np.array(list(arr.item()), dtype='U1'))
     assert_array_equal(rdr.get_variables()['a'], carr)
-    rdr.chars_as_strings=True
+    rdr.chars_as_strings = True
     assert_array_equal(rdr.get_variables()['a'], arr)
 
 
@@ -836,15 +842,15 @@ def test_read_both_endian():
                            np.array([['hello'],
                                      ['world']], dtype=np.object))
         assert_array_equal(d['floats'],
-                           np.array([[ 2.,  3.],
-                                     [ 3.,  4.]], dtype=np.float32))
+                           np.array([[2., 3.],
+                                     [3., 4.]], dtype=np.float32))
 
 
 def test_write_opposite_endian():
     # We don't support writing opposite endian .mat files, but we need to behave
     # correctly if the user supplies an other-endian numpy array to write out
-    float_arr = np.array([[ 2.,  3.],
-                          [ 3.,  4.]])
+    float_arr = np.array([[2., 3.],
+                          [3., 4.]])
     int_arr = np.arange(6).reshape((2, 3))
     uni_arr = np.array(['hello', 'world'], dtype='U')
     stream = BytesIO()
@@ -1016,7 +1022,7 @@ def test_round_types():
     for dts in ('f8','f4','i8','i4','i2','i1',
                 'u8','u4','u2','u1','c16','c8'):
         stream.truncate(0)
-        stream.seek(0) # needed for BytesIO in python 3
+        stream.seek(0)  # needed for BytesIO in python 3
         savemat_future(stream, {'arr': arr.astype(dts)})
         vars = loadmat(stream)
         assert_equal(np.dtype(dts), vars['arr'].dtype)
@@ -1027,9 +1033,11 @@ def test_varmats_from_mat():
     names_vars = (('arr', mlarr(np.arange(10))),
                   ('mystr', mlarr('a string')),
                   ('mynum', mlarr(10)))
+
     # Dict like thing to give variables in defined order
     class C(object):
-        def items(self): return names_vars
+        def items(self):
+            return names_vars
     stream = BytesIO()
     savemat_future(stream, C())
     varmats = varmats_from_mat(stream)

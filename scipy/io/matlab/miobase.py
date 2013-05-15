@@ -19,11 +19,17 @@ from scipy.misc import doccer
 
 from . import byteordercodes as boc
 
-class MatReadError(Exception): pass
 
-class MatWriteError(Exception): pass
+class MatReadError(Exception):
+    pass
 
-class MatReadWarning(UserWarning): pass
+
+class MatWriteError(Exception):
+    pass
+
+
+class MatReadWarning(UserWarning):
+    pass
 
 doc_dict = \
     {'file_arg':
@@ -287,12 +293,12 @@ def matdims(arr, oned_as='column'):
     ValueError: 1D option "bizarre" is strange
 
     """
-    if arr.size == 0: # empty
+    if arr.size == 0:  # empty
         return (0,) * np.max([arr.ndim, 2])
     shape = arr.shape
-    if shape == (): # scalar
+    if shape == ():  # scalar
         return (1,1)
-    if len(shape) == 1: # 1D
+    if len(shape) == 1:  # 1D
         if oned_as == 'column':
             return shape + (1,)
         elif oned_as == 'row':

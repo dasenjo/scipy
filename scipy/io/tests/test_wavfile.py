@@ -13,6 +13,7 @@ from scipy.io import wavfile
 def datafile(fn):
     return os.path.join(os.path.dirname(__file__), 'data', fn)
 
+
 def test_read_1():
     for mmap in [False, True]:
         warn_ctx = WarningManager()
@@ -30,6 +31,7 @@ def test_read_1():
 
         del data
 
+
 def test_read_2():
     for mmap in [False, True]:
         rate, data = wavfile.read(datafile('test-8000-le-2ch-1byteu.wav'),
@@ -40,11 +42,13 @@ def test_read_2():
 
         del data
 
+
 def test_read_fail():
     for mmap in [False, True]:
         fp = open(datafile('example_1.nc'))
         assert_raises(ValueError, wavfile.read, fp, mmap=mmap)
         fp.close()
+
 
 def _check_roundtrip(rate, dtype, channels):
     fd, tmpfile = tempfile.mkstemp(suffix='.wav')
@@ -54,7 +58,11 @@ def _check_roundtrip(rate, dtype, channels):
         data = np.random.rand(100, channels)
         if channels == 1:
             data = data[:,0]
-        data = (data*128).astype(dtype)
+        if dtype.kind == 'f':
+            # The range of the float type should be in [-1, 1]
+            data = data.astype(dtype)
+        else:
+            data = (data*128).astype(dtype)
 
         wavfile.write(tmpfile, rate, data)
 
@@ -69,11 +77,18 @@ def _check_roundtrip(rate, dtype, channels):
     finally:
         os.unlink(tmpfile)
 
+
 def test_write_roundtrip():
-    for signed in ('i', 'u'):
+    for signed in ('i', 'u', 'f'):
         for size in (1, 2, 4, 8):
             if size == 1 and signed == 'i':
                 # signed 8-bit integer PCM is not allowed
+                continue
+            if size > 1 and signed == 'u':
+                # unsigned > 8-bit integer PCM is not allowed
+                continue
+            if (size == 1 or size == 2) and signed == 'f':
+                # 8- or 16-bit float PCM is not expected
                 continue
             for endianness in ('>', '<'):
                 if size == 1 and endianness == '<':

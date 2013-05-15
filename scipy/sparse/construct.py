@@ -4,7 +4,7 @@ from __future__ import division, print_function, absolute_import
 
 __docformat__ = "restructuredtext en"
 
-__all__ = [ 'spdiags', 'eye', 'identity', 'kron', 'kronsum',
+__all__ = ['spdiags', 'eye', 'identity', 'kron', 'kronsum',
             'hstack', 'vstack', 'bmat', 'rand', 'diags', 'block_diag']
 
 
@@ -22,6 +22,7 @@ from .lil import lil_matrix
 from .dia import dia_matrix
 
 from .base import issparse
+
 
 def spdiags(data, diags, m, n, format=None):
     """
@@ -58,6 +59,7 @@ def spdiags(data, diags, m, n, format=None):
 
     """
     return dia_matrix((data, diags), shape=(m,n)).asformat(format)
+
 
 def diags(diagonals, offsets, shape=None, format=None, dtype=None):
     """
@@ -184,6 +186,7 @@ def diags(diagonals, offsets, shape=None, format=None, dtype=None):
 
     return dia_matrix((data_arr, offsets), shape=(m, n)).asformat(format)
 
+
 def identity(n, dtype='d', format=None):
     """Identity matrix in sparse format
 
@@ -211,6 +214,7 @@ def identity(n, dtype='d', format=None):
 
     """
     return eye(n, n, dtype=dtype, format=format)
+
 
 def eye(m, n=None, k=0, dtype=float, format=None):
     """Sparse matrix with ones on diagonal
@@ -250,19 +254,20 @@ def eye(m, n=None, k=0, dtype=float, format=None):
     if m == n and k == 0:
         # fast branch for special formats
         if format in ['csr', 'csc']:
-            indptr  = np.arange(n+1, dtype=np.intc)
-            indices = np.arange(n,   dtype=np.intc)
-            data    = np.ones(n,     dtype=dtype)
+            indptr = np.arange(n+1, dtype=np.intc)
+            indices = np.arange(n, dtype=np.intc)
+            data = np.ones(n, dtype=dtype)
             cls = {'csr': csr_matrix, 'csc': csc_matrix}[format]
             return cls((data,indices,indptr),(n,n))
         elif format == 'coo':
-            row  = np.arange(n, dtype=np.intc)
-            col  = np.arange(n, dtype=np.intc)
+            row = np.arange(n, dtype=np.intc)
+            col = np.arange(n, dtype=np.intc)
             data = np.ones(n, dtype=dtype)
             return coo_matrix((data,(row,col)),(n,n))
 
     diags = np.ones((1, max(0, min(m + k, n))), dtype=dtype)
     return spdiags(diags, k, m, n).asformat(format)
+
 
 def kron(A, B, format=None):
     """kronecker product of sparse matrices A and B
@@ -301,14 +306,14 @@ def kron(A, B, format=None):
     B = coo_matrix(B)
 
     if (format is None or format == "bsr") and 2*B.nnz >= B.shape[0] * B.shape[1]:
-        #B is fairly dense, use BSR
+        # B is fairly dense, use BSR
         A = csr_matrix(A,copy=True)
 
         output_shape = (A.shape[0]*B.shape[0], A.shape[1]*B.shape[1])
 
         if A.nnz == 0 or B.nnz == 0:
             # kronecker product is the zero matrix
-            return coo_matrix( output_shape )
+            return coo_matrix(output_shape)
 
         B = B.toarray()
         data = A.data.repeat(B.size).reshape(-1,B.shape[0],B.shape[1])
@@ -316,17 +321,17 @@ def kron(A, B, format=None):
 
         return bsr_matrix((data,A.indices,A.indptr), shape=output_shape)
     else:
-        #use COO
+        # use COO
         A = coo_matrix(A)
         output_shape = (A.shape[0]*B.shape[0], A.shape[1]*B.shape[1])
 
         if A.nnz == 0 or B.nnz == 0:
             # kronecker product is the zero matrix
-            return coo_matrix( output_shape )
+            return coo_matrix(output_shape)
 
         # expand entries of a into blocks
-        row  = A.row.repeat(B.nnz)
-        col  = A.col.repeat(B.nnz)
+        row = A.row.repeat(B.nnz)
+        col = A.col.repeat(B.nnz)
         data = A.data.repeat(B.nnz)
 
         row *= B.shape[0]
@@ -343,6 +348,7 @@ def kron(A, B, format=None):
         data = data.reshape(-1)
 
         return coo_matrix((data,(row,col)), shape=output_shape).asformat(format)
+
 
 def kronsum(A, B, format=None):
     """kronecker sum of sparse matrices A and B
@@ -384,7 +390,7 @@ def kronsum(A, B, format=None):
     L = kron(eye(B.shape[0],dtype=dtype), A, format=format)
     R = kron(B, eye(A.shape[0],dtype=dtype), format=format)
 
-    return (L+R).asformat(format) #since L + R is not always same format
+    return (L+R).asformat(format)  # since L + R is not always same format
 
 
 def hstack(blocks, format=None, dtype=None):
@@ -416,6 +422,7 @@ def hstack(blocks, format=None, dtype=None):
     """
     return bmat([blocks], format=format, dtype=dtype)
 
+
 def vstack(blocks, format=None, dtype=None):
     """
     Stack sparse matrices vertically (row wise)
@@ -444,7 +451,8 @@ def vstack(blocks, format=None, dtype=None):
             [5, 6]])
 
     """
-    return bmat([ [b] for b in blocks ], format=format, dtype=dtype)
+    return bmat([[b] for b in blocks], format=format, dtype=dtype)
+
 
 def bmat(blocks, format=None, dtype=None):
     """
@@ -496,7 +504,7 @@ def bmat(blocks, format=None, dtype=None):
 
     M,N = blocks.shape
 
-    block_mask   = np.zeros(blocks.shape,    dtype=np.bool)
+    block_mask = np.zeros(blocks.shape, dtype=np.bool)
     brow_lengths = np.zeros(blocks.shape[0], dtype=np.intc)
     bcol_lengths = np.zeros(blocks.shape[1], dtype=np.intc)
 
@@ -520,23 +528,22 @@ def bmat(blocks, format=None, dtype=None):
                     if bcol_lengths[j] != A.shape[1]:
                         raise ValueError('blocks[:,%d] has incompatible column dimensions' % j)
 
-
     # ensure that at least one value in each row and col is not None
     if brow_lengths.min() == 0:
-        raise ValueError('blocks[%d,:] is all None' % brow_lengths.argmin() )
+        raise ValueError('blocks[%d,:] is all None' % brow_lengths.argmin())
     if bcol_lengths.min() == 0:
-        raise ValueError('blocks[:,%d] is all None' % bcol_lengths.argmin() )
+        raise ValueError('blocks[:,%d] is all None' % bcol_lengths.argmin())
 
-    nnz = sum([ A.nnz for A in blocks[block_mask] ])
+    nnz = sum([A.nnz for A in blocks[block_mask]])
     if dtype is None:
-        dtype = upcast( *tuple([A.dtype for A in blocks[block_mask]]) )
+        dtype = upcast(*tuple([A.dtype for A in blocks[block_mask]]))
 
     row_offsets = np.concatenate(([0], np.cumsum(brow_lengths)))
     col_offsets = np.concatenate(([0], np.cumsum(bcol_lengths)))
 
     data = np.empty(nnz, dtype=dtype)
-    row  = np.empty(nnz, dtype=np.intc)
-    col  = np.empty(nnz, dtype=np.intc)
+    row = np.empty(nnz, dtype=np.intc)
+    col = np.empty(nnz, dtype=np.intc)
 
     nnz = 0
     for i in range(M):
@@ -544,8 +551,8 @@ def bmat(blocks, format=None, dtype=None):
             if blocks[i,j] is not None:
                 A = blocks[i,j]
                 data[nnz:nnz + A.nnz] = A.data
-                row[nnz:nnz + A.nnz]  = A.row
-                col[nnz:nnz + A.nnz]  = A.col
+                row[nnz:nnz + A.nnz] = A.row
+                col[nnz:nnz + A.nnz] = A.col
 
                 row[nnz:nnz + A.nnz] += row_offsets[i]
                 col[nnz:nnz + A.nnz] += col_offsets[j]
@@ -554,6 +561,7 @@ def bmat(blocks, format=None, dtype=None):
 
     shape = (np.sum(brow_lengths), np.sum(bcol_lengths))
     return coo_matrix((data, (row, col)), shape=shape).asformat(format)
+
 
 def block_diag(mats, format=None, dtype=None):
     """
@@ -603,6 +611,7 @@ def block_diag(mats, format=None, dtype=None):
             row[ia] = coo_matrix(a)
         rows.append(row)
     return bmat(rows, format=format, dtype=dtype)
+
 
 def rand(m, n, density=0.01, format="coo", dtype=None, random_state=None):
     """Generate a sparse matrix of the given shape and density with uniformely

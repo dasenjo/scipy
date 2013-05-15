@@ -15,14 +15,15 @@ except ImportError:
     from . import umfpack
     noScikit = True
 
-isUmfpack = hasattr( umfpack, 'UMFPACK_OK' )
+isUmfpack = hasattr(umfpack, 'UMFPACK_OK')
 
 useUmfpack = True
 
 
-__all__ = [ 'use_solver', 'spsolve', 'splu', 'spilu', 'factorized' ]
+__all__ = ['use_solver', 'spsolve', 'splu', 'spilu', 'factorized']
 
-def use_solver( **kwargs ):
+
+def use_solver(**kwargs):
     """
     Valid keyword arguments with defaults (other ignored)::
 
@@ -42,7 +43,7 @@ def use_solver( **kwargs ):
         globals()['useUmfpack'] = kwargs['useUmfpack']
 
     if isUmfpack:
-        umfpack.configure( **kwargs )
+        umfpack.configure(**kwargs)
 
 
 def spsolve(A, b, permc_spec=None, use_umfpack=True):
@@ -119,24 +120,24 @@ def spsolve(A, b, permc_spec=None, use_umfpack=True):
 
     if b_is_vector and isUmfpack and use_umfpack:
         if noScikit:
-            warn( 'scipy.sparse.linalg.dsolve.umfpack will be removed,'
-                    ' install scikits.umfpack instead', DeprecationWarning )
+            warn('scipy.sparse.linalg.dsolve.umfpack will be removed,'
+                    ' install scikits.umfpack instead', DeprecationWarning)
         if A.dtype.char not in 'dD':
             raise ValueError("convert matrix data to double, please, using"
                   " .astype(), or set linsolve.useUmfpack = False")
 
         b = asarray(b, dtype=A.dtype).reshape(-1)
 
-        family = {'d' : 'di', 'D' : 'zi'}
+        family = {'d': 'di', 'D': 'zi'}
         umf = umfpack.UmfpackContext(family[A.dtype.char])
         x = umf.linsolve(umfpack.UMFPACK_A, A, b,
-                         autoTranspose = True )
+                         autoTranspose=True)
 
     elif b_is_vector:
         if isspmatrix_csc(A):
-            flag = 1 # CSC format
+            flag = 1  # CSC format
         elif isspmatrix_csr(A):
-            flag = 0 # CSR format
+            flag = 0  # CSR format
         else:
             A = csc_matrix(A)
             flag = 1
@@ -219,11 +220,11 @@ def splu(A, permc_spec=None, diag_pivot_thresh=None,
         warn('splu requires CSC matrix format', SparseEfficiencyWarning)
 
     A.sort_indices()
-    A = A.asfptype()  #upcast to a floating point format
+    A = A.asfptype()  # upcast to a floating point format
 
     M, N = A.shape
     if (M != N):
-        raise ValueError("can only factor square matrices") #is this true?
+        raise ValueError("can only factor square matrices")  # is this true?
 
     _options = dict(DiagPivotThresh=diag_pivot_thresh, ColPerm=permc_spec,
                     PanelSize=panel_size, Relax=relax)
@@ -231,6 +232,7 @@ def splu(A, permc_spec=None, diag_pivot_thresh=None,
         _options.update(options)
     return _superlu.gstrf(N, A.nnz, A.data, A.indices, A.indptr,
                           ilu=False, options=_options)
+
 
 def spilu(A, drop_tol=None, fill_factor=None, drop_rule=None, permc_spec=None,
           diag_pivot_thresh=None, relax=None, panel_size=None, options=None):
@@ -283,11 +285,11 @@ def spilu(A, drop_tol=None, fill_factor=None, drop_rule=None, permc_spec=None,
         warn('splu requires CSC matrix format', SparseEfficiencyWarning)
 
     A.sort_indices()
-    A = A.asfptype()  #upcast to a floating point format
+    A = A.asfptype()  # upcast to a floating point format
 
     M, N = A.shape
     if (M != N):
-        raise ValueError("can only factor square matrices") #is this true?
+        raise ValueError("can only factor square matrices")  # is this true?
 
     _options = dict(ILU_DropRule=drop_rule, ILU_DropTol=drop_tol,
                     ILU_FillFactor=fill_factor,
@@ -298,7 +300,8 @@ def spilu(A, drop_tol=None, fill_factor=None, drop_rule=None, permc_spec=None,
     return _superlu.gstrf(N, A.nnz, A.data, A.indices, A.indptr,
                           ilu=True, options=_options)
 
-def factorized( A ):
+
+def factorized(A):
     """
     Return a fuction for solving a sparse linear system, with A pre-factorized.
 
@@ -328,29 +331,29 @@ def factorized( A ):
     """
     if isUmfpack and useUmfpack:
         if noScikit:
-            warn( 'scipy.sparse.linalg.dsolve.umfpack will be removed,'
-                    ' install scikits.umfpack instead', DeprecationWarning )
+            warn('scipy.sparse.linalg.dsolve.umfpack will be removed,'
+                    ' install scikits.umfpack instead', DeprecationWarning)
 
         if not isspmatrix_csc(A):
             A = csc_matrix(A)
             warn('splu requires CSC matrix format', SparseEfficiencyWarning)
 
         A.sort_indices()
-        A = A.asfptype()  #upcast to a floating point format
+        A = A.asfptype()  # upcast to a floating point format
 
         if A.dtype.char not in 'dD':
             raise ValueError("convert matrix data to double, please, using"
                   " .astype(), or set linsolve.useUmfpack = False")
 
-        family = {'d' : 'di', 'D' : 'zi'}
-        umf = umfpack.UmfpackContext( family[A.dtype.char] )
+        family = {'d': 'di', 'D': 'zi'}
+        umf = umfpack.UmfpackContext(family[A.dtype.char])
 
         # Make LU decomposition.
-        umf.numeric( A )
+        umf.numeric(A)
 
-        def solve( b ):
-            return umf.solve( umfpack.UMFPACK_A, A, b, autoTranspose = True )
+        def solve(b):
+            return umf.solve(umfpack.UMFPACK_A, A, b, autoTranspose=True)
 
         return solve
     else:
-        return splu( A ).solve
+        return splu(A).solve

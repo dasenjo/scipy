@@ -158,6 +158,7 @@ PyObject* %(type_name)s_to_py(void *obj)
 }
 """
 
+
 class swig2_converter(common_base_converter):
     """ A converter for SWIG >= 1.3 wrapped objects."""
     def __init__(self, class_name="undefined", pycobj=0, runtime_version=None):
@@ -188,7 +189,7 @@ class swig2_converter(common_base_converter):
 
         """
         self.class_name = class_name
-        self.pycobj = pycobj # This is on if a PyCObject has been used.
+        self.pycobj = pycobj  # This is on if a PyCObject has been used.
         self.runtime_version = runtime_version
         common_base_converter.__init__(self)
 
@@ -240,15 +241,14 @@ class swig2_converter(common_base_converter):
         self.type_name = self.class_name
         self.c_type = self.class_name + "*"
         self.return_type = self.class_name + "*"
-        self.to_c_return = None # not used
-        self.check_func = None # not used
+        self.to_c_return = None  # not used
+        self.check_func = None  # not used
 
         if self.pycobj == 1:
             self.define_macros.append(("SWIG_COBJECT_TYPES", None))
             self.define_macros.append(("SWIG_COBJECT_PYTHON", None))
         elif self.pycobj == 2:
             self.define_macros.append(("SWIG_COBJECT_TYPES", None))
-
 
         if self.runtime_version is None:
             self.runtime_version = self._get_swig_runtime_version()
@@ -352,7 +352,7 @@ class swig2_converter(common_base_converter):
         return new_spec
 
     def __cmp__(self,other):
-        #only works for equal
+        # only works for equal
         res = -1
         try:
             res = cmp(self.name,other.name) or \
@@ -367,4 +367,4 @@ class swig2_converter(common_base_converter):
 # Uncomment the next line if you want this to be a default converter
 # that is magically invoked by inline.
 #----------------------------------------------------------------------
-#converters.default.insert(0, swig2_converter())
+# converters.default.insert(0, swig2_converter())

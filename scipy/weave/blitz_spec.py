@@ -20,7 +20,7 @@ blitz_support_code =  \
 // declare them.
 
 int _beg = blitz::fromStart;
-int _end = blitz::toEnd;
+const int _end = blitz::toEnd;
 blitz::Range _all = blitz::Range::all();
 
 template<class T, int N>
@@ -64,6 +64,7 @@ blitz_dir = os.path.join(local_dir,'blitz')
 # converters necessary and also this little class necessary.
 # The spec/info unification needs to continue so that this can
 # incorporated into the spec somehow.
+
 
 class array_info(base_info.custom_info):
     # throw error if trying to use msvc compiler
@@ -110,7 +111,7 @@ class array_converter(standard_array_spec.array_converter):
             res['dims'] = self.dims
         return res
 
-    def declaration_code(self,templatize = 0,inline=0):
+    def declaration_code(self,templatize=0,inline=0):
         code = '%(py_var)s = %(var_lookup)s;\n'   \
                '%(c_type)s %(array_name)s = %(var_convert)s;\n'  \
                'conversion_numpy_check_type(%(array_name)s,%(num_typecode)s,"%(name)s");\n' \
@@ -123,7 +124,7 @@ class array_converter(standard_array_spec.array_converter):
 
     def __cmp__(self,other):
         #only works for equal
-        return ( cmp(self.name,other.name) or
+        return (cmp(self.name,other.name) or
                  cmp(self.var_type,other.var_type) or
                  cmp(self.dims, other.dims) or
-                 cmp(self.__class__, other.__class__) )
+                 cmp(self.__class__, other.__class__))

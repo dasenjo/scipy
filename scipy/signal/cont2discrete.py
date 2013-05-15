@@ -122,7 +122,7 @@ def cont2discrete(sys, dt, method="zoh", alpha=None):
 
         # Need to stack zeros under the a and b matrices
         em_lower = np.hstack((np.zeros((b.shape[1], a.shape[0])),
-                              np.zeros((b.shape[1], b.shape[1])) ))
+                              np.zeros((b.shape[1], b.shape[1]))))
 
         em = np.vstack((em_upper, em_lower))
         ms = linalg.expm(dt * em)
@@ -140,4 +140,3 @@ def cont2discrete(sys, dt, method="zoh", alpha=None):
         raise ValueError("Unknown transformation method '%s'" % method)
 
     return ad, bd, cd, dd, dt
-

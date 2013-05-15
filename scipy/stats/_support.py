@@ -8,6 +8,7 @@ ListType = list
 TupleType = tuple
 StringType = str
 
+
 def abut(source, *args):
     # comment: except for the repetition, this is equivalent to hstack.
     """\nLike the |Stat abut command.  It concatenates two arrays column-wise
@@ -19,13 +20,13 @@ def abut(source, *args):
     'left', arrays in <args> attached on the 'right'.\n"""
 
     source = asarray(source)
-    if len(source.shape)==1:
+    if len(source.shape) == 1:
         width = 1
         source = np.resize(source,[source.shape[0],width])
     else:
         width = source.shape[1]
     for addon in args:
-        if len(addon.shape)==1:
+        if len(addon.shape) == 1:
             width = 1
             addon = np.resize(addon,[source.shape[0],width])
         else:
@@ -56,7 +57,7 @@ def unique(inarray):
             for item in inarray[1:]:
                 if not np.sum(np.alltrue(np.equal(uniques,item),1),axis=0):
                     try:
-                        uniques = np.concatenate( [uniques,item[np.newaxis,:]] )
+                        uniques = np.concatenate([uniques,item[np.newaxis,:]])
                     except TypeError:    # the item to add isn't a list
                         uniques = np.concatenate([uniques,np.array([item])])
                 else:
@@ -67,14 +68,15 @@ def unique(inarray):
                 for unq in uniques:  # NOTE: cmp --> 0=same, -1=<, 1=>
                     test = np.sum(abs(np.array(list(map(cmp,item,unq)))),axis=0)
                     if test == 0:   # if item identical to any 1 row in uniques
-                        newflag = 0 # then not a novel item to add
+                        newflag = 0  # then not a novel item to add
                         break
                 if newflag == 1:
                     try:
-                        uniques = np.concatenate( [uniques,item[np.newaxis,:]] )
+                        uniques = np.concatenate([uniques,item[np.newaxis,:]])
                     except TypeError:    # the item to add isn't a list
                         uniques = np.concatenate([uniques,np.array([item])])
     return uniques
+
 
 def colex(a, indices, axis=1):
     """\nExtracts specified indices (a list) from passed array, along passed
@@ -90,6 +92,7 @@ def colex(a, indices, axis=1):
     else:
         cols = np.take(a,indices,axis)
     return cols
+
 
 def adm(a, criterion):
     """\nReturns rows from the passed list of lists that meet the criteria in
@@ -118,7 +121,7 @@ def linexand(a, columnlist, valuelist):
         valuelist = [valuelist]
     criterion = ''
     for i in range(len(columnlist)):
-        if type(valuelist[i])==StringType:
+        if type(valuelist[i]) == StringType:
             critval = '\'' + valuelist[i] + '\''
         else:
             critval = str(valuelist[i])
@@ -192,13 +195,13 @@ def collapse(a, keepcols, collapsecols, stderr=0, ns=0, cfcn=None):
         newlist = []
         for item in uniques:
             if type(item) not in [ListType,TupleType,np.ndarray]:
-                item =[item]
+                item = [item]
             tmprows = linexand(a,keepcols,item)
             for col in collapsecols:
                 avgcol = colex(tmprows,col)
                 item.append(cfcn(avgcol))
                 if stderr:
-                    if len(avgcol)>1:
+                    if len(avgcol) > 1:
                         item.append(compute_stderr(avgcol))
                     else:
                         item.append('N/A')
@@ -211,6 +214,7 @@ def collapse(a, keepcols, collapsecols, stderr=0, ns=0, cfcn=None):
             new_a = np.array(newlist,'O')
         return new_a
 
+
 def _chk_asarray(a, axis):
     if axis is None:
         a = np.ravel(a)
@@ -219,6 +223,7 @@ def _chk_asarray(a, axis):
         a = np.asarray(a)
         outaxis = axis
     return a, outaxis
+
 
 def _chk2_asarray(a, b, axis):
     if axis is None:
@@ -230,6 +235,7 @@ def _chk2_asarray(a, b, axis):
         b = np.asarray(b)
         outaxis = axis
     return a, b, outaxis
+
 
 def compute_stderr(a, axis=0, ddof=1):
     a, axis = _chk_asarray(a, axis)

@@ -7,7 +7,6 @@ __docformat__ = "restructuredtext en"
 __all__ = ['dok_matrix', 'isspmatrix_dok']
 
 
-
 import numpy as np
 
 from scipy.lib.six.moves import zip as izip, xrange
@@ -22,6 +21,7 @@ except ImportError:
     def _is_sequence(x):
         return (hasattr(x, '__len__') or hasattr(x, '__next__')
                 or hasattr(x, 'next'))
+
 
 class dok_matrix(spmatrix, dict):
     """
@@ -78,10 +78,10 @@ class dok_matrix(spmatrix, dict):
         spmatrix.__init__(self)
 
         self.dtype = getdtype(dtype, default=float)
-        if isinstance(arg1, tuple) and isshape(arg1): # (M,N)
+        if isinstance(arg1, tuple) and isshape(arg1):  # (M,N)
             M, N = arg1
             self.shape = (M, N)
-        elif isspmatrix(arg1): # Sparse ctor
+        elif isspmatrix(arg1):  # Sparse ctor
             if isspmatrix_dok(arg1) and copy:
                 arg1 = arg1.copy()
             else:
@@ -93,13 +93,13 @@ class dok_matrix(spmatrix, dict):
             self.update(arg1)
             self.shape = arg1.shape
             self.dtype = arg1.dtype
-        else: # Dense ctor
+        else:  # Dense ctor
             try:
                 arg1 = np.asarray(arg1)
             except:
                 raise TypeError('invalid input format')
 
-            if len(arg1.shape)!=2:
+            if len(arg1.shape) != 2:
                 raise TypeError('expected rank <=2 dense array or matrix')
 
             from .coo import coo_matrix
@@ -128,7 +128,7 @@ class dok_matrix(spmatrix, dict):
             raise IndexError('index out of bounds')
         return dict.get(self, key, default)
 
-    def  __getitem__(self, key):
+    def __getitem__(self, key):
         """If key=(i,j) is a pair of integers, return the corresponding
         element.  If either i or j is a slice or sequence, return a new sparse
         matrix with just these elements.
@@ -137,7 +137,6 @@ class dok_matrix(spmatrix, dict):
             i, j = key
         except (ValueError, TypeError):
             raise TypeError('index must be a pair of integers or slices')
-
 
         # Bounds checking
         if isintlike(i):
@@ -187,7 +186,7 @@ class dok_matrix(spmatrix, dict):
                     # ** linear time in the number of non-zeros:
                     for (ii, jj) in self.keys():
                         if jj == j and ii >= first and ii <= last:
-                            dict.__setitem__(new, (ii-first, 0), \
+                            dict.__setitem__(new, (ii-first, 0),
                                              dict.__getitem__(self, (ii,jj)))
                 else:
                     ###################################
@@ -222,10 +221,9 @@ class dok_matrix(spmatrix, dict):
             # ** if there are many non-zeros
             for (ii, jj) in self.keys():
                 if ii == i and jj >= first and jj <= last:
-                    dict.__setitem__(new, (0, jj-first), \
+                    dict.__setitem__(new, (0, jj-first),
                                      dict.__getitem__(self, (ii,jj)))
             return new
-
 
     def __setitem__(self, key, value):
         try:
@@ -330,7 +328,6 @@ class dok_matrix(spmatrix, dict):
                         for element, val in izip(seq, value):
                             self[i, element] = val
 
-
     def __add__(self, other):
         # First check if argument is a scalar
         if isscalarlike(other):
@@ -342,7 +339,7 @@ class dok_matrix(spmatrix, dict):
                     aij = self.get((i, j), 0) + other
                     if aij != 0:
                         new[i, j] = aij
-            #new.dtype.char = self.dtype.char
+            # new.dtype.char = self.dtype.char
         elif isinstance(other, dok_matrix):
             if other.shape != self.shape:
                 raise ValueError("matrix dimensions are not equal")
@@ -402,17 +399,17 @@ class dok_matrix(spmatrix, dict):
         return new
 
     def _mul_vector(self, other):
-        #matrix * vector
-        result = np.zeros( self.shape[0], dtype=upcast(self.dtype,other.dtype) )
+        # matrix * vector
+        result = np.zeros(self.shape[0], dtype=upcast(self.dtype,other.dtype))
         for (i,j),v in iteritems(self):
             result[i] += v * other[j]
         return result
 
     def _mul_multivector(self, other):
-        #matrix * multivector
+        # matrix * multivector
         M,N = self.shape
-        n_vecs = other.shape[1] #number of column vectors
-        result = np.zeros( (M,n_vecs), dtype=upcast(self.dtype,other.dtype) )
+        n_vecs = other.shape[1]  # number of column vectors
+        result = np.zeros((M,n_vecs), dtype=upcast(self.dtype,other.dtype))
         for (i,j),v in iteritems(self):
             result[i,:] += v * other[j,:]
         return result
@@ -422,11 +419,10 @@ class dok_matrix(spmatrix, dict):
             # Multiply this scalar by every element.
             for (key, val) in iteritems(self):
                 self[key] = val * other
-            #new.dtype.char = self.dtype.char
+            # new.dtype.char = self.dtype.char
             return self
         else:
             return NotImplementedError
-
 
     def __truediv__(self, other):
         if isscalarlike(other):
@@ -434,11 +430,10 @@ class dok_matrix(spmatrix, dict):
             # Multiply this scalar by every element.
             for (key, val) in iteritems(self):
                 new[key] = val / other
-            #new.dtype.char = self.dtype.char
+            # new.dtype.char = self.dtype.char
             return new
         else:
             return self.tocsr() / other
-
 
     def __itruediv__(self, other):
         if isscalarlike(other):
@@ -482,7 +477,7 @@ class dok_matrix(spmatrix, dict):
         new = dok_matrix(dtype=self.dtype)    # what should the dimensions be ?!
         indx = int((columns == 1))
         N = len(cols_or_rows)
-        if indx: # columns
+        if indx:  # columns
             for key in self.keys():
                 num = np.searchsorted(cols_or_rows, key[1])
                 if num < N:
@@ -528,7 +523,7 @@ class dok_matrix(spmatrix, dict):
         if self.nnz == 0:
             return coo_matrix(self.shape, dtype=self.dtype)
         else:
-            data    = np.asarray(_list(self.values()), dtype=self.dtype)
+            data = np.asarray(_list(self.values()), dtype=self.dtype)
             indices = np.asarray(_list(self.keys()), dtype=np.intc).T
             return coo_matrix((data,indices), shape=self.shape,
                               dtype=self.dtype)

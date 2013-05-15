@@ -94,7 +94,7 @@ def abcd_normalize(A=None, B=None, C=None, D=None):
     A, B, C, D = map(_none_to_empty, (A, B, C, D))
     A, B, C, D = map(atleast_2d, (A, B, C, D))
 
-    if ((len(A.shape) > 2) or (len(B.shape) > 2) or \
+    if ((len(A.shape) > 2) or (len(B.shape) > 2) or
         (len(C.shape) > 2) or (len(D.shape) > 2)):
         raise ValueError("A, B, C, D arrays can be no larger than rank-2.")
 
@@ -244,8 +244,8 @@ class lti(object):
     Notes
     -----
     `lti` instances have all types of representations available; for example
-    after creating an instance s with ``(zeros, poles, gain)`` the transfer 
-    function representation (numerator, denominator) can be accessed as 
+    after creating an instance s with ``(zeros, poles, gain)`` the transfer
+    function representation (numerator, denominator) can be accessed as
     ``s.num`` and ``s.den``.
 
     """
@@ -864,9 +864,8 @@ def bode(system, w=None, n=100):
         calculated.
     n : int, optional
         Number of frequency points to compute if `w` is not given. The `n`
-        frequencies are logarithmically spaced in the range from two orders of
-        magnitude before the minimum (slowest) pole to two orders of magnitude
-        after the maximum (fastest) pole.
+        frequencies are logarithmically spaced in an interval chosen to
+        include the influence of the poles and zeros of the system.
 
     Returns
     -------
@@ -892,16 +891,7 @@ def bode(system, w=None, n=100):
     >>> plt.show()
 
     """
-    if isinstance(system, lti):
-        sys = system
-    else:
-        sys = lti(*system)
-
-    if w is None:
-        worN = n
-    else:
-        worN = w
-    w, y = freqs(sys.num, sys.den, worN=worN)
+    w, y = freqresp(system, w=w, n=n)
 
     mag = 20.0 * numpy.log10(abs(y))
     phase = numpy.arctan2(y.imag, y.real) * 180.0 / numpy.pi
@@ -923,14 +913,13 @@ def freqresp(system, w=None, n=10000):
             * 4 (A, B, C, D)
 
     w : array_like, optional
-        Array of frequencies (in rad/s). Magnitude and phase data is 
-        calculated for every value in this array. If not given a reasonable 
+        Array of frequencies (in rad/s). Magnitude and phase data is
+        calculated for every value in this array. If not given a reasonable
         set will be calculated.
     n : int, optional
         Number of frequency points to compute if `w` is not given. The `n`
-        frequencies are logarithmically spaced in the range from two orders of
-        magnitude before the minimum (slowest) pole to two orders of magnitude
-        after the maximum (fastest) pole.
+        frequencies are logarithmically spaced in an interval chosen to
+        include the influence of the poles and zeros of the system.
 
     Returns
     -------
@@ -948,7 +937,7 @@ def freqresp(system, w=None, n=10000):
 
     >>> s1 = signal.lti([], [1, 1, 1], [5])
     # transfer function: H(s) = 5 / (s-1)^3
-    
+
     >>> w, H = signal.freqresp(s1)
 
     >>> plt.figure()
@@ -961,9 +950,17 @@ def freqresp(system, w=None, n=10000):
     else:
         sys = lti(*system)
 
+    if sys.inputs != 1 or sys.outputs != 1:
+        raise ValueError("freqresp() requires a SISO (single input, single "
+                         "output) system.")
+
     if w is not None:
         worN = w
     else:
         worN = n
 
-    return freqs(sys.num, sys.den, worN=worN)
+    # In the call to freqs(), sys.num.ravel() is used because there are
+    # cases where sys.num is a 2-D array with a single row.
+    w, h = freqs(sys.num.ravel(), sys.den, worN=worN)
+
+    return w, h

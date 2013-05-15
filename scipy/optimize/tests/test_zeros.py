@@ -12,7 +12,8 @@ from scipy.optimize import zeros
 # Import testing parameters
 from scipy.optimize._tstutils import functions, fstrings
 
-class TestBasic(TestCase) :
+
+class TestBasic(TestCase):
     def run_check(self, method, name):
         a = .5
         b = sqrt(3)
@@ -24,10 +25,13 @@ class TestBasic(TestCase) :
 
     def test_bisect(self):
         self.run_check(cc.bisect, 'bisect')
+
     def test_ridder(self):
         self.run_check(cc.ridder, 'ridder')
+
     def test_brentq(self):
         self.run_check(cc.brentq, 'brentq')
+
     def test_brenth(self):
         self.run_check(cc.brenth, 'brenth')
 
@@ -53,5 +57,5 @@ class TestBasic(TestCase) :
         dfunc = lambda x: 2*x
         assert_warns(RuntimeWarning, cc.newton, func, 0.0, dfunc)
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     run_module_suite()

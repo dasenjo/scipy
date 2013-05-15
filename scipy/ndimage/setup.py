@@ -4,6 +4,7 @@ from numpy.distutils.core import setup
 from numpy.distutils.misc_util import Configuration
 from numpy import get_include
 
+
 def configuration(parent_package='', top_path=None):
 
     config = Configuration('ndimage', parent_package, top_path)
@@ -20,7 +21,7 @@ def configuration(parent_package='', top_path=None):
     config.add_extension("_ni_label",
                          sources=["src/_ni_label.c",],
                          include_dirs=['src']+[get_include()],
-    )
+                         )
 
     config.add_data_dir('tests')
 

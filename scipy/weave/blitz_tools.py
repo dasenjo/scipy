@@ -15,6 +15,7 @@ from .inline_tools import attempt_function_call
 function_catalog = inline_tools.function_catalog
 function_cache = inline_tools.function_cache
 
+
 def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
     # this could call inline, but making a copy of the
     # code here is more efficient for several reasons.
@@ -59,8 +60,8 @@ def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
         func = inline_tools.compile_function(expr_code,arg_names,local_dict,
                                              global_dict,module_dir,
                                              compiler='gcc',auto_downcast=1,
-                                             verbose = verbose,
-                                             type_converters = converters.blitz,
+                                             verbose=verbose,
+                                             type_converters=converters.blitz,
                                              **kw)
         function_catalog.add_function(expr,func,module_dir)
         try:
@@ -68,6 +69,7 @@ def blitz(expr,local_dict=None, global_dict=None,check_size=1,verbose=0,**kw):
         except ValueError:
             print('warning: compilation failed. Executing as python code')
             exec(expr, global_dict, local_dict)
+
 
 def ast_to_blitz_expr(ast_seq):
     """ Convert an ast_sequence to a blitz expression.
@@ -92,11 +94,11 @@ def ast_to_blitz_expr(ast_seq):
     # be included in the generated code.
     # These could all alternatively be done to the ast in
     # build_slice_atom()
-    expr = expr.replace('slice(_beg,_end)', '_all' )
-    expr = expr.replace('slice', 'blitz::Range' )
+    expr = expr.replace('slice(_beg,_end)', '_all')
+    expr = expr.replace('slice', 'blitz::Range')
     expr = expr.replace('[','(')
-    expr = expr.replace(']', ')' )
-    expr = expr.replace('_stp', '1' )
+    expr = expr.replace(']', ')')
+    expr = expr.replace('_stp', '1')
 
     # Instead of blitz::fromStart and blitz::toEnd.  This requires
     # the following in the generated code.
@@ -106,6 +108,7 @@ def ast_to_blitz_expr(ast_seq):
     #expr = expr.replace('_end', 'blitz::toEnd' )
 
     return expr + ';\n'
+
 
 def test_function():
     expr = "ex[:,1:,1:] = k +  ca_x[:,1:,1:] * ex[:,1:,1:]" \

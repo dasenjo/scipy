@@ -34,19 +34,22 @@ __version__ = '3.3.2'
 
 __all__ = ["decorator", "FunctionMaker", "partial"]
 
-import sys, re, inspect
+import sys
+import re
+import inspect
 
 from scipy.lib.six import exec_
 
 try:
     from functools import partial
-except ImportError: # for Python version < 2.5
+except ImportError:  # for Python version < 2.5
     class partial(object):
         "A simple replacement of functools.partial"
         def __init__(self, func, *args, **kw):
             self.func = func
             self.args = args
             self.keywords = kw
+
         def __call__(self, *otherargs, **otherkw):
             kw = self.keywords.copy()
             kw.update(otherkw)
@@ -63,6 +66,7 @@ else:
             self.kwonlyargs = []
             self.kwonlydefaults = None
             self.annotations = getattr(f, '__annotations__', {})
+
         def __iter__(self):
             yield self.args
             yield self.varargs
@@ -72,6 +76,8 @@ else:
 DEF = re.compile('\s*def\s*([_\w][_\w\d]*)\s*\(')
 
 # basic functionality
+
+
 class FunctionMaker(object):
     """
     An object with the ability to create functions with a given signature.
@@ -84,7 +90,7 @@ class FunctionMaker(object):
         if func:
             # func can be a class or a callable, but not an instance method
             self.name = func.__name__
-            if self.name == '<lambda>': # small hack for lambda functions
+            if self.name == '<lambda>':  # small hack for lambda functions
                 self.name = '_lambda_'
             self.doc = func.__doc__
             self.module = func.__module__
@@ -104,7 +110,7 @@ class FunctionMaker(object):
                     allargs.append('**' + self.varkw)
                 try:
                     self.shortsignature = ', '.join(allargs)
-                except TypeError: # exotic signature, valid only in Python 2.X
+                except TypeError:  # exotic signature, valid only in Python 2.X
                     self.shortsignature = self.signature
                 self.dict = func.__dict__.copy()
         # func=None happens when decorating a caller
@@ -141,19 +147,19 @@ class FunctionMaker(object):
 
     def make(self, src_templ, evaldict=None, addsource=False, **attrs):
         "Make a new function from a given template and update the signature"
-        src = src_templ % vars(self) # expand name and signature
+        src = src_templ % vars(self)  # expand name and signature
         evaldict = evaldict or {}
         mo = DEF.match(src)
         if mo is None:
             raise SyntaxError('not a valid function template\n%s' % src)
-        name = mo.group(1) # extract the function name
+        name = mo.group(1)  # extract the function name
         names = set([name] + [arg.strip(' *') for arg in
                              self.shortsignature.split(',')])
         for n in names:
             if n in ('_func_', '_call_'):
                 raise NameError('%s is overridden in\n%s' % (n, src))
-        if not src.endswith('\n'): # add a newline just for safety
-            src += '\n' # this is needed in old versions of Python
+        if not src.endswith('\n'):  # add a newline just for safety
+            src += '\n'  # this is needed in old versions of Python
         try:
             code = compile(src, '<string>', 'single')
             # print >> sys.stderr, 'Compiling %s' % src
@@ -177,11 +183,11 @@ class FunctionMaker(object):
         __source__ is added to the result. The attributes attrs are added,
         if any.
         """
-        if isinstance(obj, str): # "name(signature)"
+        if isinstance(obj, str):  # "name(signature)"
             name, rest = obj.strip().split('(', 1)
-            signature = rest[:-1] #strip a right parens
+            signature = rest[:-1]  # strip a right parens
             func = None
-        else: # a function
+        else:  # a function
             name = None
             signature = None
             func = obj
@@ -190,12 +196,13 @@ class FunctionMaker(object):
         return self.make('def %(name)s(%(signature)s):\n' + ibody,
                         evaldict, addsource, **attrs)
 
+
 def decorator(caller, func=None):
     """
     decorator(caller) converts a caller function into a decorator;
     decorator(caller, func) decorates a function using a caller.
     """
-    if func is not None: # returns a decorated function
+    if func is not None:  # returns a decorated function
         if sys.version_info[0] >= 3:
             evaldict = func.__globals__.copy()
         else:
@@ -205,11 +212,11 @@ def decorator(caller, func=None):
         return FunctionMaker.create(
             func, "return _call_(_func_, %(shortsignature)s)",
             evaldict, undecorated=func, __wrapped__=func)
-    else: # returns a decorator
+    else:  # returns a decorator
         if isinstance(caller, partial):
             return partial(decorator, caller)
         # otherwise assume caller is a function
-        first = inspect.getargspec(caller)[0][0] # first arg
+        first = inspect.getargspec(caller)[0][0]  # first arg
         if sys.version_info[0] >= 3:
             evaldict = caller.__globals__.copy()
         else:

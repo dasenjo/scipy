@@ -9,6 +9,7 @@ import scipy.spatial.qhull as qhull
 
 import pickle
 
+
 class TestLinearNDInterpolation(object):
     def test_smoketest(self):
         # Test at single points
@@ -105,6 +106,7 @@ class TestLinearNDInterpolation(object):
 
         assert_almost_equal(ip(0.5, 0.5), ip2(0.5, 0.5))
 
+
 class TestEstimateGradients2DGlobal(object):
     def test_smoketest(self):
         x = np.array([(0, 0), (0, 2),
@@ -114,10 +116,10 @@ class TestEstimateGradients2DGlobal(object):
         # Should be exact for linear functions, independent of triangulation
 
         funcs = [
-            (lambda x, y: 0*x + 1,            (0, 0)),
-            (lambda x, y: 0 + x,              (1, 0)),
-            (lambda x, y: -2 + y,             (0, 1)),
-            (lambda x, y: 3 + 3*x + 14.15*y,  (3, 14.15))
+            (lambda x, y: 0*x + 1, (0, 0)),
+            (lambda x, y: 0 + x, (1, 0)),
+            (lambda x, y: -2 + y, (0, 1)),
+            (lambda x, y: 3 + 3*x + 14.15*y, (3, 14.15))
         ]
 
         for j, (func, grad) in enumerate(funcs):
@@ -127,6 +129,7 @@ class TestEstimateGradients2DGlobal(object):
             assert_equal(dz.shape, (6, 2))
             assert_allclose(dz, np.array(grad)[None,:] + 0*dz,
                             rtol=1e-5, atol=1e-5, err_msg="item %d" % j)
+
 
 class TestCloughTocher2DInterpolator(object):
 
@@ -211,7 +214,7 @@ class TestCloughTocher2DInterpolator(object):
             lambda x, y: np.cos(2*np.pi*x)*np.sin(2*np.pi*y)
         ]
 
-        np.random.seed(4321) # use a different seed than the check!
+        np.random.seed(4321)  # use a different seed than the check!
         grid = np.r_[np.array([(0,0), (0,1), (1,0), (1,1)], dtype=float),
                      np.random.rand(30*30, 2)]
 
@@ -223,7 +226,6 @@ class TestCloughTocher2DInterpolator(object):
         x = np.random.randn(30, 3)
         y = np.random.randn(30)
         assert_raises(ValueError, interpnd.CloughTocher2DInterpolator, x, y)
-
 
     def test_pickle(self):
         # Test at single points

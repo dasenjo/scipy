@@ -9,24 +9,24 @@ as member variables of the `netcdf_file` and `netcdf_variable` objects.
 This module implements the Scientific.IO.NetCDF API to read and create
 NetCDF files. The same API is also used in the PyNIO and pynetcdf
 modules, allowing these modules to be used interchangeably when working
-with NetCDF files. 
+with NetCDF files.
 """
 
 from __future__ import division, print_function, absolute_import
 
-#TODO:
+# TODO:
 # * properly implement ``_FillValue``.
 # * implement Jeff Whitaker's patch for masked variables.
 # * fix character variables.
 # * implement PAGESIZE for Python 2.6?
 
-#The Scientific.IO.NetCDF API allows attributes to be added directly to
-#instances of ``netcdf_file`` and ``netcdf_variable``. To differentiate
-#between user-set attributes and instance attributes, user-set attributes
-#are automatically stored in the ``_attributes`` attribute by overloading
+# The Scientific.IO.NetCDF API allows attributes to be added directly to
+# instances of ``netcdf_file`` and ``netcdf_variable``. To differentiate
+# between user-set attributes and instance attributes, user-set attributes
+# are automatically stored in the ``_attributes`` attribute by overloading
 #``__setattr__``. This is the reason why the code sometimes uses
 #``obj.__dict__['key'] = value``, instead of simply ``obj.key = value``;
-#otherwise the key would be inserted into userspace attributes.
+# otherwise the key would be inserted into userspace attributes.
 
 
 __all__ = ['netcdf_file']
@@ -44,27 +44,27 @@ from functools import reduce
 from scipy.lib.six import integer_types
 
 
-ABSENT       = b'\x00\x00\x00\x00\x00\x00\x00\x00'
-ZERO         = b'\x00\x00\x00\x00'
-NC_BYTE      = b'\x00\x00\x00\x01'
-NC_CHAR      = b'\x00\x00\x00\x02'
-NC_SHORT     = b'\x00\x00\x00\x03'
-NC_INT       = b'\x00\x00\x00\x04'
-NC_FLOAT     = b'\x00\x00\x00\x05'
-NC_DOUBLE    = b'\x00\x00\x00\x06'
+ABSENT = b'\x00\x00\x00\x00\x00\x00\x00\x00'
+ZERO = b'\x00\x00\x00\x00'
+NC_BYTE = b'\x00\x00\x00\x01'
+NC_CHAR = b'\x00\x00\x00\x02'
+NC_SHORT = b'\x00\x00\x00\x03'
+NC_INT = b'\x00\x00\x00\x04'
+NC_FLOAT = b'\x00\x00\x00\x05'
+NC_DOUBLE = b'\x00\x00\x00\x06'
 NC_DIMENSION = b'\x00\x00\x00\n'
-NC_VARIABLE  = b'\x00\x00\x00\x0b'
+NC_VARIABLE = b'\x00\x00\x00\x0b'
 NC_ATTRIBUTE = b'\x00\x00\x00\x0c'
 
 
-TYPEMAP = { NC_BYTE:   ('b', 1),
-            NC_CHAR:   ('c', 1),
-            NC_SHORT:  ('h', 2),
-            NC_INT:    ('i', 4),
-            NC_FLOAT:  ('f', 4),
-            NC_DOUBLE: ('d', 8) }
+TYPEMAP = {NC_BYTE: ('b', 1),
+            NC_CHAR: ('c', 1),
+            NC_SHORT: ('h', 2),
+            NC_INT: ('i', 4),
+            NC_FLOAT: ('f', 4),
+            NC_DOUBLE: ('d', 8)}
 
-REVERSE = { ('b', 1): NC_BYTE,
+REVERSE = {('b', 1): NC_BYTE,
             ('B', 1): NC_CHAR,
             ('c', 1): NC_CHAR,
             ('h', 2): NC_SHORT,
@@ -75,7 +75,7 @@ REVERSE = { ('b', 1): NC_BYTE,
             # these come from asarray(1).dtype.char and asarray('foo').dtype.char,
             # used when getting the types from generic attributes.
             ('l', 4): NC_INT,
-            ('S', 1): NC_CHAR }
+            ('S', 1): NC_CHAR}
 
 
 class netcdf_file(object):
@@ -110,7 +110,7 @@ class netcdf_file(object):
 
     Notes
     -----
-    The major advantage of this module over other modules is that it doesn't 
+    The major advantage of this module over other modules is that it doesn't
     require the code to be linked to the NetCDF libraries. This module is
     derived from `pupynere <https://bitbucket.org/robertodealmeida/pupynere/>`_.
 
@@ -119,11 +119,11 @@ class netcdf_file(object):
     details about NetCDF files can be found `here
     <http://www.unidata.ucar.edu/software/netcdf/docs/netcdf.html>`_. There
     are three main sections to a NetCDF data structure:
-    
+
     1. Dimensions
     2. Variables
     3. Attributes
-    
+
     The dimensions section records the name and length of each dimension used
     by the variables. The variables would then indicate which dimensions it
     uses and any attributes such as data units, along with containing the data
@@ -132,23 +132,23 @@ class netcdf_file(object):
     that axes. Lastly, the attributes section would contain additional
     information such as the name of the file creator or the instrument used to
     collect the data.
-    
+
     When writing data to a NetCDF file, there is often the need to indicate the
     'record dimension'. A record dimension is the unbounded dimension for a
     variable. For example, a temperature variable may have dimensions of
     latitude, longitude and time. If one wants to add more temperature data to
     the NetCDF file as time progresses, then the temperature variable should
     have the time dimension flagged as the record dimension.
-    
+
     In addition, the NetCDF file header contains the position of the data in
     the file, so access can be done in an efficient manner without loading
     unnecessary data into memory. It uses the ``mmap`` module to create
     Numpy arrays mapped to the data on disk, for the same purpose.
-    
+
     Examples
     --------
     To create a NetCDF file:
-    
+
         >>> from scipy.io import netcdf
         >>> f = netcdf.netcdf_file('simple.nc', 'w')
         >>> f.history = 'Created for a test'
@@ -157,13 +157,13 @@ class netcdf_file(object):
         >>> time[:] = np.arange(10)
         >>> time.units = 'days since 2008-01-01'
         >>> f.close()
-    
+
     Note the assignment of ``range(10)`` to ``time[:]``.  Exposing the slice
     of the time variable allows for the data to be set in the object, rather
     than letting ``range(10)`` overwrite the ``time`` variable.
-    
+
     To read the NetCDF file we just created:
-    
+
         >>> from scipy.io import netcdf
         >>> f = netcdf.netcdf_file('simple.nc', 'r')
         >>> print(f.history)
@@ -186,18 +186,18 @@ class netcdf_file(object):
     """
     def __init__(self, filename, mode='r', mmap=None, version=1):
         """Initialize netcdf_file from fileobj (str or file-like)."""
-        if hasattr(filename, 'seek'): # file-like
+        if hasattr(filename, 'seek'):  # file-like
             self.fp = filename
             self.filename = 'None'
             if mmap is None:
                 mmap = False
             elif mmap and not hasattr(filename, 'fileno'):
                 raise ValueError('Cannot use file object for mmap')
-        else: # maybe it's a string
+        else:  # maybe it's a string
             self.filename = filename
             self.fp = open(self.filename, '%sb' % mode)
             if mmap is None:
-                mmap  = True
+                mmap = True
         self.use_mmap = mmap
         self.version_byte = version
 
@@ -303,7 +303,7 @@ class netcdf_file(object):
         if (typecode, size) not in REVERSE:
             raise ValueError("NetCDF 3 does not support type %s" % type)
 
-        data = empty(shape_, dtype=type.newbyteorder("B")) #convert to big endian always for NetCDF 3
+        data = empty(shape_, dtype=type.newbyteorder("B"))  # convert to big endian always for NetCDF 3
         self.variables[name] = netcdf_variable(data, typecode, size, shape, dimensions)
         return self.variables[name]
 
@@ -369,9 +369,9 @@ class netcdf_file(object):
 
             # Sort variables non-recs first, then recs. We use a DSU
             # since some people use pupynere with Python 2.3.x.
-            deco = [ (v._shape and not v.isrec, k) for (k, v) in self.variables.items() ]
+            deco = [(v._shape and not v.isrec, k) for (k, v) in self.variables.items()]
             deco.sort()
-            variables = [ k for (unused, k) in deco ][::-1]
+            variables = [k for (unused, k) in deco][::-1]
 
             # Set the metadata for all variables.
             for name in variables:
@@ -470,7 +470,8 @@ class netcdf_file(object):
             except TypeError:
                 sample = values
             for class_, nc_type in types:
-                if isinstance(sample, class_): break
+                if isinstance(sample, class_):
+                    break
 
         typecode, size = TYPEMAP[nc_type]
         dtype_ = '>%s' % typecode
@@ -563,12 +564,13 @@ class netcdf_file(object):
             # 32-bit vsize field is not large enough to contain the size
             # of variables that require more than 2^32 - 4 bytes, so
             # 2^32 - 1 is used in the vsize field for such variables.
-            if shape and shape[0] is None: # record variable
+            if shape and shape[0] is None:  # record variable
                 rec_vars.append(name)
                 # The netCDF "record size" is calculated as the sum of
                 # the vsize's of all the record variables.
                 self.__dict__['_recsize'] += vsize
-                if begin == 0: begin = begin_
+                if begin == 0:
+                    begin = begin_
                 dtypes['names'].append(name)
                 dtypes['formats'].append(str(shape[1:]) + dtype_)
 
@@ -582,7 +584,7 @@ class netcdf_file(object):
 
                 # Data will be set later.
                 data = None
-            else: # not a record variable
+            else:  # not a record variable
                 # Calculate size to avoid problems with vsize (above)
                 a_size = reduce(mul, shape, 1) * size
                 if self.use_mmap:
@@ -658,7 +660,8 @@ class netcdf_file(object):
 
         if typecode is not 'c':
             values = fromstring(values, dtype='>%s' % typecode)
-            if values.shape == (1,): values = values[0]
+            if values.shape == (1,):
+                values = values[0]
         else:
             values = values.rstrip(b'\x00')
         return values

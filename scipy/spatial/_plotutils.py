@@ -5,6 +5,7 @@ from scipy.lib.decorator import decorator as _decorator
 
 __all__ = ['delaunay_plot_2d', 'convex_hull_plot_2d', 'voronoi_plot_2d']
 
+
 @_decorator
 def _held_figure(func, obj, ax=None, **kw):
     import matplotlib.pyplot as plt
@@ -20,12 +21,14 @@ def _held_figure(func, obj, ax=None, **kw):
     finally:
         ax.hold(was_held)
 
+
 def _adjust_bounds(ax, points):
     ptp_bound = points.ptp(axis=0)
     ax.set_xlim(points[:,0].min() - 0.1*ptp_bound[0],
                 points[:,0].max() + 0.1*ptp_bound[0])
     ax.set_ylim(points[:,1].min() - 0.1*ptp_bound[1],
                 points[:,1].max() + 0.1*ptp_bound[1])
+
 
 @_held_figure
 def delaunay_plot_2d(tri, ax=None):
@@ -64,6 +67,7 @@ def delaunay_plot_2d(tri, ax=None):
 
     return ax.figure
 
+
 @_held_figure
 def convex_hull_plot_2d(hull, ax=None):
     """
@@ -100,6 +104,7 @@ def convex_hull_plot_2d(hull, ax=None):
     _adjust_bounds(ax, hull.points)
 
     return ax.figure
+
 
 @_held_figure
 def voronoi_plot_2d(vor, ax=None):
@@ -144,17 +149,17 @@ def voronoi_plot_2d(vor, ax=None):
     for pointidx, simplex in zip(vor.ridge_points, vor.ridge_vertices):
         simplex = np.asarray(simplex)
         if np.any(simplex < 0):
-            i = simplex[simplex >= 0][0] # finite end Voronoi vertex
+            i = simplex[simplex >= 0][0]  # finite end Voronoi vertex
 
-            t = vor.points[pointidx[1]] - vor.points[pointidx[0]] # tangent
+            t = vor.points[pointidx[1]] - vor.points[pointidx[0]]  # tangent
             t /= np.linalg.norm(t)
-            n = np.array([-t[1], t[0]]) # normal
+            n = np.array([-t[1], t[0]])  # normal
 
             midpoint = vor.points[pointidx].mean(axis=0)
             direction = np.sign(np.dot(midpoint - center, n)) * n
             far_point = vor.vertices[i] + direction * ptp_bound.max()
 
-            ax.plot([vor.vertices[i,0], far_point[0]], 
+            ax.plot([vor.vertices[i,0], far_point[0]],
                     [vor.vertices[i,1], far_point[1]], 'k--')
 
     _adjust_bounds(ax, vor.points)

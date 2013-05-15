@@ -4,10 +4,12 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
-from . import _interpolate # C extension.  Does all the real work.
+from . import _interpolate  # C extension.  Does all the real work.
 
-def atleast_1d_and_contiguous(ary, dtype = np.float64):
-    return np.atleast_1d( np.ascontiguousarray(ary, dtype) )
+
+def atleast_1d_and_contiguous(ary, dtype=np.float64):
+    return np.atleast_1d(np.ascontiguousarray(ary, dtype))
+
 
 def nearest(x, y, new_x):
     """
@@ -28,9 +30,9 @@ def nearest(x, y, new_x):
         Rounds each `new_x` to nearest `x` and returns the corresponding `y`.
 
     """
-    shifted_x = np.concatenate(( np.array([x[0]-1]) , x[0:-1] ))
+    shifted_x = np.concatenate((np.array([x[0]-1]), x[0:-1]))
 
-    midpoints_of_x = atleast_1d_and_contiguous( .5*(x + shifted_x) )
+    midpoints_of_x = atleast_1d_and_contiguous(.5*(x + shifted_x))
     new_x = atleast_1d_and_contiguous(new_x)
 
     TINY = 1e-10
@@ -39,7 +41,6 @@ def nearest(x, y, new_x):
     new_y = np.take(y, indices, axis=-1)
 
     return new_y
-
 
 
 def linear(x, y, new_x):
@@ -64,13 +65,14 @@ def linear(x, y, new_x):
         raise ValueError("`linear` only works with 1-D or 2-D arrays.")
     if len(y.shape) == 2:
         new_y = np.zeros((y.shape[0], len(new_x)), np.float64)
-        for i in range(len(new_y)): # for each row
+        for i in range(len(new_y)):  # for each row
             _interpolate.linear_dddd(x, y[i], new_x, new_y[i])
     else:
         new_y = np.zeros(len(new_x), np.float64)
         _interpolate.linear_dddd(x, y, new_x, new_y)
 
     return new_y
+
 
 def logarithmic(x, y, new_x):
     """
@@ -101,6 +103,7 @@ def logarithmic(x, y, new_x):
         _interpolate.loginterp_dddd(x, y, new_x, new_y)
 
     return new_y
+
 
 def block_average_above(x, y, new_x):
     """
@@ -141,6 +144,7 @@ def block_average_above(x, y, new_x):
         raise ValueError(msg)
 
     return new_y
+
 
 def block(x, y, new_x):
     """

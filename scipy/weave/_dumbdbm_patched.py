@@ -33,6 +33,7 @@ _BLOCKSIZE = 512
 
 error = IOError             # For anydbm
 
+
 class _Database(object):
 
     def __init__(self, file):
@@ -57,23 +58,28 @@ class _Database(object):
         else:
             while 1:
                 line = string.rstrip(f.readline())
-                if not line: break
+                if not line:
+                    break
                 key, (pos, siz) = eval(line)
                 self._index[key] = (pos, siz)
             f.close()
 
     def _commit(self):
-        try: _os.unlink(self._bakfile)
-        except _os.error: pass
-        try: _os.rename(self._dirfile, self._bakfile)
-        except _os.error: pass
+        try:
+            _os.unlink(self._bakfile)
+        except _os.error:
+            pass
+        try:
+            _os.rename(self._dirfile, self._bakfile)
+        except _os.error:
+            pass
         f = _open(self._dirfile, 'w')
         for key, (pos, siz) in self._index.items():
             f.write("%s, (%s, %s)\n" % (repr(key), repr(pos), repr(siz)))
         f.close()
 
     def __getitem__(self, key):
-        pos, siz = self._index[key] # may raise KeyError
+        pos, siz = self._index[key]  # may raise KeyError
         f = _open(self._datfile, 'rb')
         f.seek(pos)
         dat = f.read(siz)
@@ -148,6 +154,6 @@ class _Database(object):
         self._datfile = self._dirfile = self._bakfile = None
 
 
-def open(file, flag = None, mode = None):
+def open(file, flag=None, mode=None):
     # flag, mode arguments are currently ignored
     return _Database(file)

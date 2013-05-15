@@ -27,6 +27,7 @@ from scipy.sparse.linalg.interface import aslinearoperator
 
 from .lsqr import _sym_ortho
 
+
 def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
          maxiter=None, show=False):
     """Iterative solver for least-squares problems.
@@ -134,7 +135,7 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
     A = aslinearoperator(A)
     b = b.squeeze()
 
-    msg=('The exact solution is  x = 0                              ',
+    msg = ('The exact solution is  x = 0                              ',
          'Ax - b is small enough, given atol, btol                  ',
          'The least-squares solution is good enough, given atol     ',
          'The estimate of cond(Abar) has exceeded conlim            ',
@@ -177,7 +178,6 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
 
     if alpha > 0:
         v = (1 / alpha) * v
-
 
     # Initialize variables for 1st iteration.
 
@@ -232,10 +232,10 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
         print(' ')
         print(hdg1, hdg2)
         test1 = 1
-        test2  = alpha / beta
+        test2 = alpha / beta
         str1 = '%6g %12.5e' % (itn, x[0])
         str2 = ' %10.3e %10.3e' % (normr, normar)
-        str3 = '  %8.1e %8.1e' % (test1,  test2)
+        str3 = '  %8.1e %8.1e' % (test1, test2)
         print(''.join([str1, str2, str3]))
 
     # Main iteration loop.
@@ -301,7 +301,7 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
 
         thetatildeold = thetatilde
         ctildeold, stildeold, rhotildeold = _sym_ortho(rhodold, thetabar)
-        thetatilde = stildeold* rhobar
+        thetatilde = stildeold * rhobar
         rhodold = ctildeold * rhobar
         betad = - stildeold * betad + ctildeold * betahat
 
@@ -321,7 +321,7 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
         # Estimate cond(A).
         maxrbar = max(maxrbar, rhobarold)
         if itn > 1:
-          minrbar= min(minrbar, rhobarold)
+            minrbar = min(minrbar, rhobarold)
         condA = max(maxrbar, rhotemp) / min(minrbar, rhotemp)
 
         # Test for convergence.

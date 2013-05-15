@@ -8,12 +8,14 @@ import numpy as np
 
 from scipy.optimize import root
 
+
 class TestRoot(object):
     def test_tol_parameter(self):
         # Check that the minimize() tol= argument does something
         def func(z):
             x, y = z
             return np.array([x**3 - 1, y**3 - 1])
+
         def dfunc(z):
             x, y = z
             return np.array([[3*x**2, 0], [0, 3*y**2]])

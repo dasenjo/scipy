@@ -21,6 +21,7 @@ REAL_DTYPES = [np.float32, np.float64]
 COMPLEX_DTYPES = [np.complex64, np.complex128]
 DTYPES = REAL_DTYPES + COMPLEX_DTYPES
 
+
 class TestFlapackSimple(TestCase):
 
     def test_gebal(self):
@@ -31,7 +32,8 @@ class TestFlapackSimple(TestCase):
               [0,1,0,0]]
         for p in 'sdzc':
             f = getattr(flapack,p+'gebal',None)
-            if f is None: continue
+            if f is None:
+                continue
             ba,lo,hi,pivscale,info = f(a)
             assert_(not info,repr(info))
             assert_array_almost_equal(ba,a)
@@ -40,16 +42,17 @@ class TestFlapackSimple(TestCase):
 
             ba,lo,hi,pivscale,info = f(a1,permute=1,scale=1)
             assert_(not info,repr(info))
-            #print a1
-            #print ba,lo,hi,pivscale
+            # print a1
+            # print ba,lo,hi,pivscale
 
     def test_gehrd(self):
         a = [[-149, -50,-154],
-             [ 537, 180, 546],
-             [ -27,  -9, -25]]
+             [537, 180, 546],
+             [-27, -9, -25]]
         for p in 'd':
             f = getattr(flapack,p+'gehrd',None)
-            if f is None: continue
+            if f is None:
+                continue
             ht,tau,info = f(a)
             assert_(not info,repr(info))
 
@@ -64,7 +67,7 @@ class TestFlapackSimple(TestCase):
         for dtype in 'fdFD':
             a1, b1, c1 = a.astype(dtype), b.astype(dtype), c.astype(dtype)
             trsyl, = get_lapack_funcs(('trsyl',), (a1,))
-            if dtype.isupper(): # is complex dtype
+            if dtype.isupper():  # is complex dtype
                 a1[0] += 1j
                 trans = 'C'
 
@@ -78,17 +81,19 @@ class TestFlapackSimple(TestCase):
             x, scale, info = trsyl(a1, b1, c1, isgn=-1)
             assert_array_almost_equal(np.dot(a1, x) - np.dot(x, b1), scale * c1, decimal=4)
 
+
 class TestLapack(TestCase):
 
     def test_flapack(self):
         if hasattr(flapack,'empty_module'):
-            #flapack module is empty
+            # flapack module is empty
             pass
 
     def test_clapack(self):
         if hasattr(clapack,'empty_module'):
-            #clapack module is empty
+            # clapack module is empty
             pass
+
 
 class TestRegression(TestCase):
 

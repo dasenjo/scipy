@@ -4,8 +4,10 @@ import sys
 from numpy.testing import *
 import numpy.linalg as linalg
 
+
 def random(size):
     return rand(*size)
+
 
 class TestSolve(TestCase):
 
@@ -26,7 +28,8 @@ class TestSolve(TestCase):
 
             a = random([size,size])
             # larger diagonal ensures non-singularity:
-            for i in range(size): a[i,i] = 10*(.1+a[i,i])
+            for i in range(size):
+                a[i,i] = 10*(.1+a[i,i])
             b = random([size])
 
             print('| %6.2f ' % measure('solve(a,b)',repeat), end=' ')
@@ -35,7 +38,7 @@ class TestSolve(TestCase):
             print('| %6.2f ' % measure('basic_solve(a,b)',repeat), end=' ')
             sys.stdout.flush()
 
-            a = a[-1::-1,-1::-1] # turn into a non-contiguous array
+            a = a[-1::-1,-1::-1]  # turn into a non-contiguous array
             assert_(not a.flags['CONTIGUOUS'])
 
             print('| %6.2f ' % measure('solve(a,b)',repeat), end=' ')
@@ -45,6 +48,7 @@ class TestSolve(TestCase):
             sys.stdout.flush()
 
             print('   (secs for %s calls)' % (repeat))
+
 
 class TestInv(TestCase):
 
@@ -64,7 +68,8 @@ class TestInv(TestCase):
 
             a = random([size,size])
             # large diagonal ensures non-singularity:
-            for i in range(size): a[i,i] = 10*(.1+a[i,i])
+            for i in range(size):
+                a[i,i] = 10*(.1+a[i,i])
 
             print('| %6.2f ' % measure('inv(a)',repeat), end=' ')
             sys.stdout.flush()
@@ -72,7 +77,7 @@ class TestInv(TestCase):
             print('| %6.2f ' % measure('basic_inv(a)',repeat), end=' ')
             sys.stdout.flush()
 
-            a = a[-1::-1,-1::-1] # turn into a non-contiguous array
+            a = a[-1::-1,-1::-1]  # turn into a non-contiguous array
             assert_(not a.flags['CONTIGUOUS'])
 
             print('| %6.2f ' % measure('inv(a)',repeat), end=' ')
@@ -108,7 +113,7 @@ class TestDet(TestCase):
             print('| %6.2f ' % measure('basic_det(a)',repeat), end=' ')
             sys.stdout.flush()
 
-            a = a[-1::-1,-1::-1] # turn into a non-contiguous array
+            a = a[-1::-1,-1::-1]  # turn into a non-contiguous array
             assert_(not a.flags['CONTIGUOUS'])
 
             print('| %6.2f ' % measure('det(a)',repeat), end=' ')

@@ -11,6 +11,7 @@ from .misc import _datacopied
 # XXX: what is qr_old, should it be kept?
 __all__ = ['qr', 'qr_multiply', 'rq', 'qr_old']
 
+
 def safecall(f, name, *args, **kwargs):
     """Call a LAPACK routine, determining lwork automatically and handling
     error return values"""
@@ -24,6 +25,7 @@ def safecall(f, name, *args, **kwargs):
         raise ValueError("illegal value in %d-th argument of internal %s"
                          % (-ret[-1], name))
     return ret[:-2]
+
 
 def qr(a, overwrite_a=False, lwork=None, mode='full', pivoting=False,
        check_finite=True):
@@ -134,7 +136,7 @@ def qr(a, overwrite_a=False, lwork=None, mode='full', pivoting=False,
     if pivoting:
         geqp3, = get_lapack_funcs(('geqp3',), (a1,))
         qr, jpvt, tau = safecall(geqp3, "geqp3", a1, overwrite_a=overwrite_a)
-        jpvt -= 1 # geqp3 returns a 1-based index array, so subtract 1
+        jpvt -= 1  # geqp3 returns a 1-based index array, so subtract 1
     else:
         geqrf, = get_lapack_funcs(('geqrf',), (a1,))
         qr, tau = safecall(geqrf, "geqrf", a1, lwork=lwork,
@@ -171,6 +173,7 @@ def qr(a, overwrite_a=False, lwork=None, mode='full', pivoting=False,
             overwrite_a=1)
 
     return (Q,) + Rj
+
 
 def qr_multiply(a, c, mode='right', pivoting=False, conjugate=False,
     overwrite_a=False, overwrite_c=False):
@@ -238,7 +241,7 @@ def qr_multiply(a, c, mode='right', pivoting=False, conjugate=False,
         if mode == "left":
             c = c.T
 
-    a = numpy.asarray(a) # chkfinite done in qr
+    a = numpy.asarray(a)  # chkfinite done in qr
     M, N = a.shape
     if not (mode == "left" and
                 (not overwrite_c and min(M, N) == c.shape[0] or
@@ -292,6 +295,7 @@ def qr_multiply(a, c, mode='right', pivoting=False, conjugate=False,
         cQ = cQ.ravel()
 
     return (cQ,) + raw[1:]
+
 
 @numpy.deprecate
 def qr_old(a, overwrite_a=False, lwork=None, check_finite=True):
@@ -411,7 +415,7 @@ def rq(a, overwrite_a=False, lwork=None, mode='full', check_finite=True):
 
     """
     if not mode in ['full', 'r', 'economic']:
-        raise ValueError(\
+        raise ValueError(
                  "Mode argument should be one of ['full', 'r', 'economic']")
 
     if check_finite:

@@ -10,6 +10,7 @@ __all__ = ['find', 'tril', 'triu']
 
 from .coo import coo_matrix
 
+
 def find(A):
     """Return the indices and values of the nonzero elements of a matrix
 
@@ -34,12 +35,11 @@ def find(A):
 
     """
 
-    A = coo_matrix(A).tocsr()  #sums duplicates
-    A.eliminate_zeros()        #removes explicit zeros
-    A = A.tocoo(copy=False)    #(cheaply) convert to COO
+    A = coo_matrix(A).tocsr()  # sums duplicates
+    A.eliminate_zeros()        # removes explicit zeros
+    A = A.tocoo(copy=False)    # (cheaply) convert to COO
 
     return A.row,A.col,A.data
-
 
 
 def tril(A, k=0, format=None):
@@ -101,11 +101,11 @@ def tril(A, k=0, format=None):
 
     mask = A.row + k >= A.col
 
-    row  = A.row[mask]
-    col  = A.col[mask]
+    row = A.row[mask]
+    col = A.col[mask]
     data = A.data[mask]
 
-    return coo_matrix( (data,(row,col)), shape=A.shape ).asformat(format)
+    return coo_matrix((data,(row,col)), shape=A.shape).asformat(format)
 
 
 def triu(A, k=0, format=None):
@@ -167,8 +167,8 @@ def triu(A, k=0, format=None):
 
     mask = A.row + k <= A.col
 
-    row  = A.row[mask]
-    col  = A.col[mask]
+    row = A.row[mask]
+    col = A.col[mask]
     data = A.data[mask]
 
-    return coo_matrix( (data,(row,col)), shape=A.shape ).asformat(format)
+    return coo_matrix((data,(row,col)), shape=A.shape).asformat(format)

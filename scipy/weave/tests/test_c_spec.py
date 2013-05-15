@@ -6,7 +6,7 @@ import sys
 # Note: test_dir is global to this file.
 #       It is made by setup_location()
 
-#globals
+# globals
 global test_dir
 test_dir = ''
 
@@ -21,6 +21,7 @@ def unique_mod(d,file_name):
     f = os.path.basename(unique_file(d,file_name))
     m = os.path.splitext(f)[0]
     return m
+
 
 def remove_whitespace(in_str):
     out = in_str.replace(" ","")
@@ -56,7 +57,7 @@ class IntConverter(TestCase):
     @dec.slow
     def test_type_match_string(self):
         s = c_spec.int_converter()
-        assert_( not s.type_match('string') )
+        assert_(not s.type_match('string'))
 
     @dec.slow
     def test_type_match_int(self):
@@ -82,9 +83,9 @@ class IntConverter(TestCase):
         code = "a=2;"
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=1
+        b = 1
         test(b)
         try:
             b = 1.
@@ -109,12 +110,12 @@ class IntConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=1
+        b = 1
         c = test(b)
 
-        assert_( c == 3)
+        assert_(c == 3)
 
 
 class FloatConverter(TestCase):
@@ -124,7 +125,7 @@ class FloatConverter(TestCase):
     @dec.slow
     def test_type_match_string(self):
         s = c_spec.float_converter()
-        assert_( not s.type_match('string'))
+        assert_(not s.type_match('string'))
 
     @dec.slow
     def test_type_match_int(self):
@@ -150,9 +151,9 @@ class FloatConverter(TestCase):
         code = "a=2.;"
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=1.
+        b = 1.
         test(b)
         try:
             b = 1.
@@ -177,11 +178,11 @@ class FloatConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=1.
+        b = 1.
         c = test(b)
-        assert_( c == 3.)
+        assert_(c == 3.)
 
 
 class ComplexConverter(TestCase):
@@ -191,7 +192,7 @@ class ComplexConverter(TestCase):
     @dec.slow
     def test_type_match_string(self):
         s = c_spec.complex_converter()
-        assert_( not s.type_match('string') )
+        assert_(not s.type_match('string'))
 
     @dec.slow
     def test_type_match_int(self):
@@ -217,9 +218,9 @@ class ComplexConverter(TestCase):
         code = "a=std::complex<double>(2.,2.);"
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=1.+1j
+        b = 1.+1j
         test(b)
         try:
             b = 1.
@@ -244,11 +245,11 @@ class ComplexConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=1.+1j
+        b = 1.+1j
         c = test(b)
-        assert_( c == 3.+3j)
+        assert_(c == 3.+3j)
 
 
 #----------------------------------------------------------------------------
@@ -305,7 +306,7 @@ class InstanceConverter(TestCase):
 
 class CallableConverter(TestCase):
 
-    compiler=''
+    compiler = ''
 
     @dec.slow
     def test_call_function(self):
@@ -359,7 +360,7 @@ class StringConverter(TestCase):
     @dec.slow
     def test_type_match_string(self):
         s = c_spec.string_converter()
-        assert_( s.type_match('string') )
+        assert_(s.type_match('string'))
 
     @dec.slow
     def test_type_match_int(self):
@@ -385,10 +386,10 @@ class StringConverter(TestCase):
         code = 'a=std::string("hello");'
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
 
         exec('from ' + mod_name + ' import test')
-        b='bub'
+        b = 'bub'
         test(b)
         try:
             b = 1.
@@ -413,11 +414,11 @@ class StringConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b='bub'
+        b = 'bub'
         c = test(b)
-        assert_( c == 'hello')
+        assert_(c == 'hello')
 
 
 class ListConverter(TestCase):
@@ -429,7 +430,7 @@ class ListConverter(TestCase):
         s = c_spec.list_converter()
         objs = [{},(),'',1,1.,1+1j]
         for i in objs:
-            assert_( not s.type_match(i) )
+            assert_(not s.type_match(i))
 
     @dec.slow
     def test_type_match_good(self):
@@ -445,9 +446,9 @@ class ListConverter(TestCase):
         code = 'a=py::list();'
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=[1,2]
+        b = [1,2]
         test(b)
         try:
             b = 1.
@@ -473,18 +474,18 @@ class ListConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=[1,2]
+        b = [1,2]
         c = test(b)
-        assert_( c == ['hello'])
+        assert_(c == ['hello'])
 
     @dec.slow
     def test_speed(self):
         mod_name = 'list_speed'+self.compiler
         mod_name = unique_mod(test_dir,mod_name)
         mod = ext_tools.ext_module(mod_name)
-        a = range(1000000);
+        a = range(1000000)
         code = """
                int v, sum = 0;
                for(int i = 0; i < a.len(); i++)
@@ -516,19 +517,19 @@ class ListConverter(TestCase):
                """
         no_checking = ext_tools.ext_function('no_checking',code,['a'])
         mod.add_function(no_checking)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import with_cxx, no_checking')
         import time
         t1 = time.time()
         sum1 = with_cxx(a)
         t2 = time.time()
         print('speed test for list access')
-        print('compiler:',  self.compiler)
-        print('scxx:',  t2 - t1)
+        print('compiler:', self.compiler)
+        print('scxx:', t2 - t1)
         t1 = time.time()
         sum2 = no_checking(a)
         t2 = time.time()
-        print('C, no checking:',  t2 - t1)
+        print('C, no checking:', t2 - t1)
         sum3 = 0
         t1 = time.time()
         for i in a:
@@ -538,7 +539,7 @@ class ListConverter(TestCase):
                 sum3 -= i
         t2 = time.time()
         print('python:', t2 - t1)
-        assert_( sum1 == sum2 and sum1 == sum3)
+        assert_(sum1 == sum2 and sum1 == sum3)
 
 
 class TupleConverter(TestCase):
@@ -550,7 +551,7 @@ class TupleConverter(TestCase):
         s = c_spec.tuple_converter()
         objs = [{},[],'',1,1.,1+1j]
         for i in objs:
-            assert_( not s.type_match(i) )
+            assert_(not s.type_match(i))
 
     @dec.slow
     def test_type_match_good(self):
@@ -566,9 +567,9 @@ class TupleConverter(TestCase):
         code = 'a=py::tuple();'
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=(1,2)
+        b = (1,2)
         test(b)
         try:
             b = 1.
@@ -595,11 +596,11 @@ class TupleConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b=(1,2)
+        b = (1,2)
         c = test(b)
-        assert_( c == ('hello',None))
+        assert_(c == ('hello',None))
 
 
 class DictConverter(TestCase):
@@ -610,14 +611,14 @@ class DictConverter(TestCase):
     # in all sub-classes, this base test class is found by the test
     # infrastructure and run. Therefore, we give it a default value
     # so that it can run on its own.
-    compiler=''
+    compiler = ''
 
     @dec.slow
     def test_type_match_bad(self):
         s = c_spec.dict_converter()
         objs = [[],(),'',1,1.,1+1j]
         for i in objs:
-            assert_( not s.type_match(i) )
+            assert_(not s.type_match(i))
 
     @dec.slow
     def test_type_match_good(self):
@@ -630,12 +631,12 @@ class DictConverter(TestCase):
         mod_name = unique_mod(test_dir,mod_name)
         mod = ext_tools.ext_module(mod_name)
         a = {'z':1}
-        code = 'a=py::dict();' # This just checks to make sure the type is correct
+        code = 'a=py::dict();'  # This just checks to make sure the type is correct
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
-        b={'y':2}
+        b = {'y':2}
         test(b)
         try:
             b = 1.
@@ -661,11 +662,11 @@ class DictConverter(TestCase):
                """
         test = ext_tools.ext_function('test',code,['a'])
         mod.add_function(test)
-        mod.compile(location = test_dir, compiler = self.compiler)
+        mod.compile(location=test_dir, compiler=self.compiler)
         exec('from ' + mod_name + ' import test')
         b = {'z':2}
         c = test(b)
-        assert_( c['hello'] == 5)
+        assert_(c['hello'] == 5)
 
 
 # for compiler in compilers:
@@ -674,13 +675,13 @@ class DictConverter(TestCase):
     #         exec("class %s%s(%s):\n    compiler = '%s'"%(name,compiler,name,compiler))
 # for converter in
 for _n in dir():
-    if _n[-9:]=='Converter':
+    if _n[-9:] == 'Converter':
         if msvc_exists():
-            exec("class Test%sMsvc(%s):\n    compiler = 'msvc'"%(_n,_n))
+            exec("class Test%sMsvc(%s):\n    compiler = 'msvc'" % (_n,_n))
         else:
-            exec("class Test%sUnix(%s):\n    compiler = ''"%(_n,_n))
+            exec("class Test%sUnix(%s):\n    compiler = ''" % (_n,_n))
         if gcc_exists():
-            exec("class Test%sGcc(%s):\n    compiler = 'gcc'"%(_n,_n))
+            exec("class Test%sGcc(%s):\n    compiler = 'gcc'" % (_n,_n))
 
 # class TestMsvcIntConverter(TestIntConverter):
 #     compiler = 'msvc'
@@ -762,9 +763,10 @@ for _n in dir():
 # class TestGccInstanceConverter(TestInstanceConverter):
 #     compiler = 'gcc'
 
+
 def setup_location():
     import tempfile
-    #test_dir = os.path.join(tempfile.gettempdir(),'test_files')
+    # test_dir = os.path.join(tempfile.gettempdir(),'test_files')
     test_dir = tempfile.mktemp()
     if not os.path.exists(test_dir):
         os.mkdir(test_dir)
@@ -773,12 +775,14 @@ def setup_location():
 
 test_dir = setup_location()
 
+
 def teardown_location():
     import tempfile
     test_dir = os.path.join(tempfile.gettempdir(),'test_files')
     if sys.path[0] == test_dir:
         sys.path = sys.path[1:]
     return test_dir
+
 
 def remove_file(name):
     test_dir = os.path.abspath(name)

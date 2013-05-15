@@ -15,29 +15,30 @@ from numpy.testing.utils import WarningManager
 from scipy.cluster.vq import kmeans, kmeans2, py_vq, py_vq2, vq, ClusterError
 try:
     from scipy.cluster import _vq
-    TESTC=True
+    TESTC = True
 except ImportError:
     print("== Error while importing _vq, not testing C imp of vq ==")
-    TESTC=False
+    TESTC = False
 
 #Optional:
 # import modules that are located in the same directory as this file.
 DATAFILE1 = os.path.join(os.path.dirname(__file__), "data.txt")
 
 # Global data
-X   = np.array([[3.0, 3], [4, 3], [4, 2],
+X = np.array([[3.0, 3], [4, 3], [4, 2],
                [9, 2], [5, 1], [6, 2], [9, 4],
                [5, 2], [5, 4], [7, 4], [6, 5]])
 
-CODET1  = np.array([[3.0000, 3.0000],
+CODET1 = np.array([[3.0000, 3.0000],
                    [6.2000, 4.0000],
                    [5.8000, 1.8000]])
 
-CODET2  = np.array([[11.0/3, 8.0/3],
+CODET2 = np.array([[11.0/3, 8.0/3],
                    [6.7500, 4.2500],
                    [6.2500, 1.7500]])
 
-LABEL1  = np.array([0, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1])
+LABEL1 = np.array([0, 1, 2, 2, 2, 2, 1, 2, 1, 1, 1])
+
 
 class TestVq(TestCase):
     def test_py_vq(self):
@@ -91,6 +92,7 @@ class TestVq(TestCase):
             b = a.astype(float)
             assert_raises(ValueError, _vq.vq, a, b)
 
+
 class TestKMean(TestCase):
     def test_large_features(self):
         # Generate a data set with large values, and run kmeans on it to
@@ -108,19 +110,20 @@ class TestKMean(TestCase):
         data[x.shape[0]:] = y
 
         res = kmeans(data, 2)
+
     def test_kmeans_simple(self):
         initc = np.concatenate(([[X[0]], [X[1]], [X[2]]]))
         code = initc.copy()
-        code1 = kmeans(X, code, iter = 1)[0]
+        code1 = kmeans(X, code, iter=1)[0]
 
         assert_array_almost_equal(code1, CODET2)
 
     def test_kmeans_lost_cluster(self):
         """This will cause kmean to have a cluster with no points."""
-        data = np.fromfile(DATAFILE1, sep = ", ")
+        data = np.fromfile(DATAFILE1, sep=", ")
         data = data.reshape((200, 2))
         initk = np.array([[-1.8127404, -0.67128041],
-                         [ 2.04621601, 0.07401111],
+                         [2.04621601, 0.07401111],
                          [-2.31149087,-0.05160469]])
 
         res = kmeans(data, initk)
@@ -139,31 +142,31 @@ class TestKMean(TestCase):
         """Testing simple call to kmeans2 and its results."""
         initc = np.concatenate(([[X[0]], [X[1]], [X[2]]]))
         code = initc.copy()
-        code1 = kmeans2(X, code, iter = 1)[0]
-        code2 = kmeans2(X, code, iter = 2)[0]
+        code1 = kmeans2(X, code, iter=1)[0]
+        code2 = kmeans2(X, code, iter=2)[0]
 
         assert_array_almost_equal(code1, CODET1)
         assert_array_almost_equal(code2, CODET2)
 
     def test_kmeans2_rank1(self):
         """Testing simple call to kmeans2 with rank 1 data."""
-        data = np.fromfile(DATAFILE1, sep = ", ")
+        data = np.fromfile(DATAFILE1, sep=", ")
         data = data.reshape((200, 2))
         data1 = data[:, 0]
         data2 = data[:, 1]
 
         initc = data1[:3]
         code = initc.copy()
-        code1 = kmeans2(data1, code, iter = 1)[0]
-        code2 = kmeans2(data1, code, iter = 2)[0]
+        code1 = kmeans2(data1, code, iter=1)[0]
+        code2 = kmeans2(data1, code, iter=2)[0]
 
     def test_kmeans2_rank1_2(self):
         """Testing simple call to kmeans2 with rank 1 data."""
-        data = np.fromfile(DATAFILE1, sep = ", ")
+        data = np.fromfile(DATAFILE1, sep=", ")
         data = data.reshape((200, 2))
         data1 = data[:, 0]
 
-        code1 = kmeans2(data1, 2, iter = 1)
+        code1 = kmeans2(data1, 2, iter=1)
 
     def test_kmeans2_init(self):
         """Testing that kmeans2 init methods work."""

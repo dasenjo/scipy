@@ -77,12 +77,12 @@ _filenames = ["iris.txt",
               "pdist-chebychev-ml-iris.txt",
               "random-bool-data.txt"]
 
-_tdist = np.array([[0,    662,  877,  255,  412,  996],
-                      [662,  0,    295,  468,  268,  400],
-                      [877,  295,  0,    754,  564,  138],
-                      [255,  468,  754,  0,    219,  869],
-                      [412,  268,  564,  219,  0,    669],
-                      [996,  400,  138,  869,  669,  0  ]], dtype='double')
+_tdist = np.array([[0, 662, 877, 255, 412, 996],
+                      [662, 0, 295, 468, 268, 400],
+                      [877, 295, 0, 754, 564, 138],
+                      [255, 468, 754, 0, 219, 869],
+                      [412, 268, 564, 219, 0, 669],
+                      [996, 400, 138, 869, 669, 0]], dtype='double')
 
 _ytdist = squareform(_tdist)
 
@@ -90,6 +90,7 @@ _ytdist = squareform(_tdist)
 # come from a list of text files, which are read prior to testing.
 
 eo = {}
+
 
 def load_testing_files():
     "Loading test data files for the scipy.spatial.distance tests."
@@ -254,7 +255,6 @@ class TestCdist(TestCase):
             print((Y1-Y2).max())
         self.assertTrue(within_tol(Y1, Y2, eps))
 
-
     def test_cdist_wminkowski_random_p3d8(self):
         "Tests cdist(X, 'wminkowski') on random data. (p=3.8)"
         eps = 1e-07
@@ -294,7 +294,6 @@ class TestCdist(TestCase):
             print((Y1-Y2).max())
         self.assertTrue(within_tol(Y1, Y2, eps))
 
-
     def test_cdist_seuclidean_random(self):
         "Tests cdist(X, 'seuclidean') on random data."
         eps = 1e-07
@@ -306,7 +305,6 @@ class TestCdist(TestCase):
         if verbose > 2:
             print((Y1-Y2).max())
         self.assertTrue(within_tol(Y1, Y2, eps))
-
 
     def test_cdist_cosine_random(self):
         "Tests cdist(X, 'cosine') on random data."
@@ -1515,8 +1513,8 @@ class TestSquareForm(TestCase):
     def test_squareform_2by2_matrix(self):
         "Tests squareform on a 2x2 matrix."
         A = np.zeros((2,2))
-        A[0,1]=0.8
-        A[1,0]=0.8
+        A[0,1] = 0.8
+        A[1,0] = 0.8
         rA = squareform(np.array(A, dtype='double'))
         self.assertTrue(rA.shape == (1,))
         self.assertTrue(rA[0] == 0.8)
@@ -1909,5 +1907,5 @@ def test__validate_vector():
     assert_raises(ValueError, _validate_vector, x)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     run_module_suite()

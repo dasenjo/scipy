@@ -91,6 +91,7 @@ from . import cblas
 
 from numpy import deprecate
 
+
 @deprecate(old_name="scipy.lib.blas", new_name="scipy.linalg.blas")
 def _deprecated():
     pass
@@ -109,7 +110,7 @@ elif hasattr(fblas,'empty_module'):
     fblas = cblas
 
 
-_type_conv = {'f':'s', 'd':'d', 'F':'c', 'D':'z'} # 'd' will be default for 'i',..
+_type_conv = {'f':'s', 'd':'d', 'F':'c', 'D':'z'}  # 'd' will be default for 'i',..
 _inv_type_conv = {'s':'f','d':'d','c':'F','z':'D'}
 
 
@@ -144,7 +145,7 @@ def get_blas_funcs(names,arrays=(),debug=0):
         m1,m2 = cblas,fblas
     funcs = []
     for name in names:
-        if name=='ger' and dtypechar in 'FD':
+        if name == 'ger' and dtypechar in 'FD':
             name = 'gerc'
         elif name in ('dotc', 'dotu') and dtypechar in 'fd':
             name = 'dot'

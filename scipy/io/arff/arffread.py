@@ -50,8 +50,11 @@ r_wcomattrval = re.compile(r"(\S+)\s+(..+$)")
 #-------------------------
 # Module defined exception
 #-------------------------
+
+
 class ArffError(IOError):
     pass
+
 
 class ParseArffError(ArffError):
     pass
@@ -61,6 +64,8 @@ class ParseArffError(ArffError):
 #------------------
 
 # An attribute  is defined as @attribute name value
+
+
 def parse_type(attrtype):
     """Given an arff attribute value (meta data), returns its type.
 
@@ -168,7 +173,7 @@ def go_data(ofile):
     """Skip header.
 
     the first next() call of the returned iterator will be the @data line"""
-    return itertools.dropwhile(lambda x : not r_datameta.match(x), ofile)
+    return itertools.dropwhile(lambda x: not r_datameta.match(x), ofile)
 
 
 #----------------
@@ -255,7 +260,7 @@ def tokenize_multilines(iterable, val):
         m = r_comattrval.match("".join(all[:-1]))
         return m.group(1), m.group(2), i
     else:
-        raise ValueError("Cannot parse attribute names spread over multi "\
+        raise ValueError("Cannot parse attribute names spread over multi "
                         "lines yet")
 
 
@@ -512,6 +517,7 @@ def loadarff(f):
         if ofile is not f:  # only close what we opened
             ofile.close()
 
+
 def _loadarff(ofile):
     # Parse the header file
     try:
@@ -536,8 +542,8 @@ def _loadarff(ofile):
 
     # This can be used once we want to support integer as integer values and
     # not as numeric anymore (using masked arrays ?).
-    acls2dtype = {'real' : np.float, 'integer' : np.float, 'numeric' : np.float}
-    acls2conv = {'real' : safe_float, 'integer' : safe_float, 'numeric' : safe_float}
+    acls2dtype = {'real': np.float, 'integer': np.float, 'numeric': np.float}
+    acls2conv = {'real': safe_float, 'integer': safe_float, 'numeric': safe_float}
     descr = []
     convertors = []
     if not hasstr:
@@ -549,7 +555,7 @@ def _loadarff(ofile):
                 n = maxnomlen(value)
                 descr.append((name, 'S%d' % n))
                 pvalue = get_nom_val(value)
-                convertors.append(partial(safe_nominal, pvalue = pvalue))
+                convertors.append(partial(safe_nominal, pvalue=pvalue))
             else:
                 descr.append((name, acls2dtype[type]))
                 convertors.append(safe_float)
@@ -584,7 +590,7 @@ def _loadarff(ofile):
         # skip the @data line
         next(ofile)
 
-    def generator(row_iter, delim = ','):
+    def generator(row_iter, delim=','):
         # TODO: this is where we are spending times (~80%). I think things
         # could be made more efficiently:
         #   - We could for example "compile" the function, because some values
@@ -619,7 +625,7 @@ def _loadarff(ofile):
             row = raw.split(delim)
             yield tuple([convertors[i](row[i]) for i in elems])
 
-    a = generator(ofile, delim = delim)
+    a = generator(ofile, delim=delim)
     # No error should happen here: it is a bug otherwise
     data = np.fromiter(a, descr)
     return data, meta

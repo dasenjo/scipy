@@ -16,6 +16,7 @@ from .special_matrices import kron
 __all__ = ['solve_sylvester', 'solve_lyapunov', 'solve_discrete_lyapunov',
            'solve_continuous_are', 'solve_discrete_are']
 
+
 def solve_sylvester(a,b,q):
     """
     Computes a solution (X) to the Sylvester equation (AX + XB = Q).
@@ -64,7 +65,7 @@ def solve_sylvester(a,b,q):
 
     # Call the Sylvester equation solver
     trsyl, = get_lapack_funcs(('trsyl',), (r,s,f))
-    if trsyl == None:
+    if trsyl is None:
         raise RuntimeError('LAPACK implementation does not contain a proper Sylvester equation solver (TRSYL)')
     y, scale, info = trsyl(r, s, f, tranb='C')
 
@@ -74,6 +75,7 @@ def solve_sylvester(a,b,q):
         raise LinAlgError("Illegal value encountered in the %d term" % (-info,))
 
     return np.dot(np.dot(u, y), v.conj().transpose())
+
 
 def solve_lyapunov(a, q):
     """
@@ -109,6 +111,7 @@ def solve_lyapunov(a, q):
 
     return solve_sylvester(a, a.conj().transpose(), q)
 
+
 def solve_discrete_lyapunov(a, q):
     """
     Solves the Discrete Lyapunov Equation (A'XA-X=-Q) directly.
@@ -142,6 +145,7 @@ def solve_discrete_lyapunov(a, q):
     x = solve(lhs, q.flatten())
 
     return np.reshape(x, q.shape)
+
 
 def solve_continuous_are(a, b, q, r):
     """
@@ -207,6 +211,7 @@ def solve_continuous_are(a, b, q, r):
 
     return np.dot(u21, u11i)
 
+
 def solve_discrete_are(a, b, q, r):
     """
     Solves the disctrete algebraic Riccati equation, or DARE, defined as
@@ -253,7 +258,7 @@ def solve_discrete_are(a, b, q, r):
     g = np.dot(np.dot(b, g), b.conj().transpose())
 
     try:
-        ait = inv(a).conj().transpose() # ait is "A inverse transpose"
+        ait = inv(a).conj().transpose()  # ait is "A inverse transpose"
     except LinAlgError:
         raise ValueError('Matrix A in the algebraic Riccati equation solver is ill-conditioned')
 

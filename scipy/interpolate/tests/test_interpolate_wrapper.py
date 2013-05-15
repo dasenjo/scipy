@@ -12,6 +12,7 @@ import numpy as np
 from scipy.interpolate.interpolate_wrapper import atleast_1d_and_contiguous, \
         linear, logarithmic, block_average_above, block, nearest
 
+
 class Test(unittest.TestCase):
 
     def assertAllclose(self, x, y, rtol=1.0e-5):
@@ -59,11 +60,11 @@ class Test(unittest.TestCase):
         t2 = time.clock()
         #print "time for 2D linear interpolation with N = %i:" % N, t2 - t1
         self.assertAllclose(new_y[:5,:5],
-                            [[ 0.5, 1.5, 2.5, 3.5, 4.5],
-                             [ 0.5, 1.5, 2.5, 3.5, 4.5],
-                             [ 0.5, 1.5, 2.5, 3.5, 4.5],
-                             [ 0.5, 1.5, 2.5, 3.5, 4.5],
-                             [ 0.5, 1.5, 2.5, 3.5, 4.5]])
+                            [[0.5, 1.5, 2.5, 3.5, 4.5],
+                             [0.5, 1.5, 2.5, 3.5, 4.5],
+                             [0.5, 1.5, 2.5, 3.5, 4.5],
+                             [0.5, 1.5, 2.5, 3.5, 4.5],
+                             [0.5, 1.5, 2.5, 3.5, 4.5]])
 
     def test_logarithmic(self):
         N = 4000.
@@ -78,7 +79,7 @@ class Test(unittest.TestCase):
         self.assertAllclose(new_y[:5], correct_y)
 
     def runTest(self):
-        test_list = [name for name in dir(self) if name.find('test_')==0]
+        test_list = [name for name in dir(self) if name.find('test_') == 0]
         for test_name in test_list:
             exec("self.%s()" % test_name)
 

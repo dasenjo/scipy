@@ -130,11 +130,12 @@ fblas = _DeprecatedImport("scipy.linalg.blas.fblas", "scipy.linalg.blas")
 _type_conv = {'f':'s', 'd':'d', 'F':'c', 'D':'z', 'G':'z'}
 
 # some convenience alias for complex functions
-_blas_alias = {'cnrm2' : 'scnrm2', 'znrm2' : 'dznrm2',
-               'cdot' : 'cdotc', 'zdot' : 'zdotc',
-               'cger' : 'cgerc', 'zger' : 'zgerc',
+_blas_alias = {'cnrm2': 'scnrm2', 'znrm2': 'dznrm2',
+               'cdot': 'cdotc', 'zdot': 'zdotc',
+               'cger': 'cgerc', 'zger': 'zgerc',
                'sdotc': 'sdot', 'sdotu': 'sdot',
                'ddotc': 'ddot', 'ddotu': 'ddot'}
+
 
 def find_best_blas_type(arrays=(), dtype=None):
     """Find best-matching BLAS/LAPACK type.
@@ -179,6 +180,7 @@ def find_best_blas_type(arrays=(), dtype=None):
 
     return prefix, dtype, prefer_fortran
 
+
 def _get_funcs(names, arrays, dtype,
                lib_name, fmodule, cmodule,
                fmodule_name, cmodule_name, alias):
@@ -216,13 +218,14 @@ def _get_funcs(names, arrays, dtype,
                 '%s function %s could not be found' % (lib_name, func_name))
         func.module_name, func.typecode = module_name, prefix
         func.dtype = dtype
-        func.prefix = prefix # Backward compatibility
+        func.prefix = prefix  # Backward compatibility
         funcs.append(func)
 
     if unpack:
         return funcs[0]
     else:
         return funcs
+
 
 def get_blas_funcs(names, arrays=(), dtype=None):
     """Return available BLAS function objects from names.

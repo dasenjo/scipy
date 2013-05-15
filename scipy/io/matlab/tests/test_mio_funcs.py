@@ -26,6 +26,7 @@ from scipy.io.matlab.mio5 import MatlabObject, MatFile5Writer, \
 
 test_data_path = pjoin(dirname(__file__), 'data')
 
+
 def read_minimat_vars(rdr):
     rdr.initialize_read()
     mdict = {'__globals__': []}
@@ -43,6 +44,7 @@ def read_minimat_vars(rdr):
             mdict['__globals__'].append(name)
     return mdict
 
+
 def read_workspace_vars(fname):
     fp = open(fname, 'rb')
     rdr = MatFile5Reader(fp, struct_as_record=True)
@@ -54,7 +56,7 @@ def read_workspace_vars(fname):
     # Guess byte order.
     mi = rdr.mat_stream.read(2)
     rdr.byte_order = mi == b'IM' and '<' or '>'
-    rdr.mat_stream.read(4) # presumably byte padding
+    rdr.mat_stream.read(4)  # presumably byte padding
     mdict = read_minimat_vars(rdr)
     fp.close()
     return mdict

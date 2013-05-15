@@ -16,10 +16,11 @@ ndarray_api_version = '/* NDARRAY API VERSION %x */' % (_get_ndarray_c_version()
 
 function_catalog = catalog.catalog()
 
+
 class inline_ext_function(ext_tools.ext_function):
     # Some specialization is needed for inline extension functions
     def function_declaration_code(self):
-        code  = 'static PyObject* %s(PyObject*self, PyObject* args)\n{\n'
+        code = 'static PyObject* %s(PyObject*self, PyObject* args)\n{\n'
         return code % self.name
 
     def template_declaration_code(self):
@@ -40,7 +41,7 @@ class inline_ext_function(ext_tools.ext_function):
 
         py_objects = ', '.join(self.arg_specs.py_pointers())
         if py_objects:
-            declare_py_objects = 'PyObject ' + py_objects +';\n'
+            declare_py_objects = 'PyObject ' + py_objects + ';\n'
         else:
             declare_py_objects = ''
 
@@ -55,7 +56,7 @@ class inline_ext_function(ext_tools.ext_function):
                                            '&py__globals))\n'\
                       '    return NULL;\n'
 
-        return   declare_return + declare_py_objects + \
+        return declare_return + declare_py_objects + \
                  init_values + parse_tuple
 
     def arg_declaration_code(self):
@@ -79,7 +80,7 @@ class inline_ext_function(ext_tools.ext_function):
         decl_code = indent(self.arg_declaration_code(),4)
         cleanup_code = indent(self.arg_cleanup_code(),4)
         function_code = indent(self.code_block,4)
-        #local_dict_code = indent(self.arg_local_dict_code(),4)
+        # local_dict_code = indent(self.arg_local_dict_code(),4)
 
         try_code = \
             '    try                              \n' \
@@ -94,18 +95,18 @@ class inline_ext_function(ext_tools.ext_function):
             '        raw_locals = py_to_raw_dict(py__locals,"_locals");\n'  \
             '        raw_globals = py_to_raw_dict(py__globals,"_globals");\n' \
             '        /* argument conversion code */     \n' \
-                     + decl_code  + \
+                     + decl_code + \
             '        /* inline code */                   \n' \
                      + function_code + \
             '        /*I would like to fill in changed locals and globals here...*/   \n'   \
             '    }\n'
-        catch_code =  "catch(...)                        \n"   \
+        catch_code = "catch(...)                        \n"   \
                       "{                                 \n" + \
                       "    return_val =  py::object();   \n"   \
                       "    exception_occurred = 1;        \n"   \
                       "}                                 \n"
         return_code = "    /* cleanup code */                   \n" + \
-                           cleanup_code                             + \
+                           cleanup_code + \
                       "    if(!(PyObject*)return_val && !exception_occurred)\n"   \
                       "    {\n                                  \n"   \
                       "        return_val = Py_None;            \n"   \
@@ -113,10 +114,10 @@ class inline_ext_function(ext_tools.ext_function):
                       "    return return_val.disown();          \n"           \
                       "}                                \n"
 
-        all_code = self.function_declaration_code()         + \
-                       indent(self.parse_tuple_code(),4)    + \
-                       try_code                             + \
-                       indent(catch_code,4)                 + \
+        all_code = self.function_declaration_code() + \
+                       indent(self.parse_tuple_code(),4) + \
+                       try_code + \
+                       indent(catch_code,4) + \
                        return_code
 
         return all_code
@@ -126,20 +127,23 @@ class inline_ext_function(ext_tools.ext_function):
         function_decls = '{"%s",(PyCFunction)%s , METH_VARARGS},\n' % args
         return function_decls
 
+
 class inline_ext_module(ext_tools.ext_module):
     def __init__(self,name,compiler=''):
         ext_tools.ext_module.__init__(self,name,compiler)
         self._build_information.append(common_info.inline_info())
 
 function_cache = {}
-def inline(code,arg_names=[],local_dict = None, global_dict = None,
-           force = 0,
+
+
+def inline(code,arg_names=[],local_dict=None, global_dict=None,
+           force=0,
            compiler='',
-           verbose = 0,
-           support_code = None,
-           headers = [],
+           verbose=0,
+           support_code=None,
+           headers=[],
            customize=None,
-           type_converters = None,
+           type_converters=None,
            auto_downcast=1,
            newarr_converter=0,
            **kw):
@@ -310,11 +314,11 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
                                 global_dict,module_dir,
                                 compiler=compiler,
                                 verbose=verbose,
-                                support_code = support_code,
-                                headers = headers,
+                                support_code=support_code,
+                                headers=headers,
                                 customize=customize,
-                                type_converters = type_converters,
-                                auto_downcast = auto_downcast,
+                                type_converters=type_converters,
+                                auto_downcast=auto_downcast,
                                 **kw)
 
         function_catalog.add_function(code,func,module_dir)
@@ -349,16 +353,17 @@ def inline(code,arg_names=[],local_dict = None, global_dict = None,
                                     global_dict,module_dir,
                                     compiler=compiler,
                                     verbose=verbose,
-                                    support_code = support_code,
-                                    headers = headers,
+                                    support_code=support_code,
+                                    headers=headers,
                                     customize=customize,
-                                    type_converters = type_converters,
-                                    auto_downcast = auto_downcast,
+                                    type_converters=type_converters,
+                                    auto_downcast=auto_downcast,
                                     **kw)
 
             function_catalog.add_function(code,func,module_dir)
             results = attempt_function_call(code,local_dict,global_dict)
     return results
+
 
 def attempt_function_call(code,local_dict,global_dict):
     # we try 3 levels here -- a local cache first, then the
@@ -391,7 +396,7 @@ def attempt_function_call(code,local_dict,global_dict):
             function_catalog.fast_cache(code,func)
             function_cache[code] = func
             return results
-        except TypeError as msg: # should specify argument types here.
+        except TypeError as msg:  # should specify argument types here.
             # This should really have its own error type, instead of
             # checking the beginning of the message, but I don't know
             # how to define that yet.
@@ -415,13 +420,14 @@ def attempt_function_call(code,local_dict,global_dict):
             function_catalog.fast_cache(code,func)
             function_cache[code] = func
             return results
-        except: # should specify argument types here.
+        except:  # should specify argument types here.
             pass
     # if we get here, the function wasn't found
     raise ValueError('function with correct signature not found')
 
+
 def inline_function_code(code,arg_names,local_dict=None,
-                         global_dict=None,auto_downcast = 1,
+                         global_dict=None,auto_downcast=1,
                          type_converters=None,compiler=''):
     call_frame = sys._getframe().f_back
     if local_dict is None:
@@ -430,25 +436,26 @@ def inline_function_code(code,arg_names,local_dict=None,
         global_dict = call_frame.f_globals
     ext_func = inline_ext_function('compiled_func',code,arg_names,
                                    local_dict,global_dict,auto_downcast,
-                                   type_converters = type_converters)
+                                   type_converters=type_converters)
     from . import build_tools
     compiler = build_tools.choose_compiler(compiler)
     ext_func.set_compiler(compiler)
     return ext_func.function_code()
 
+
 def compile_function(code,arg_names,local_dict,global_dict,
                      module_dir,
                      compiler='',
-                     verbose = 1,
-                     support_code = None,
-                     headers = [],
-                     customize = None,
-                     type_converters = None,
+                     verbose=1,
+                     support_code=None,
+                     headers=[],
+                     customize=None,
+                     type_converters=None,
                      auto_downcast=1,
                      **kw):
     # figure out where to store and what to name the extension module
     # that will contain the function.
-    #storage_dir = catalog.intermediate_dir()
+    # storage_dir = catalog.intermediate_dir()
     code = ndarray_api_version + '\n' + code
     module_path = function_catalog.unique_module_name(code, module_dir)
     storage_dir, module_name = os.path.split(module_path)
@@ -458,7 +465,7 @@ def compile_function(code,arg_names,local_dict,global_dict,
     # type factories setting
     ext_func = inline_ext_function('compiled_func',code,arg_names,
                                    local_dict,global_dict,auto_downcast,
-                                   type_converters = type_converters)
+                                   type_converters=type_converters)
     mod.add_function(ext_func)
 
     # if customize (a custom_info object), then set the module customization.

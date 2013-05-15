@@ -221,7 +221,7 @@ ZNEUPD_ERRORS = {0: "Normal exit.",
                       "indicates the user probably made an error in passing "
                       "data from ZNAUPD to ZNEUPD or that the data was "
                       "modified before entering ZNEUPD"
-}
+                 }
 
 CNEUPD_ERRORS = ZNEUPD_ERRORS.copy()
 CNEUPD_ERRORS[-14] = ("CNAUPD did not find any eigenvalues to sufficient "
@@ -727,7 +727,7 @@ class _UnsymmetricArpackParams(_ArpackParams):
             self.ido, self.tol, self.resid, self.v, self.iparam, self.ipntr, self.info =\
                 self._arpack_solver(self.ido, self.bmat, self.which, self.k,
                                     self.tol, self.resid, self.v, self.iparam,
-                                    self.ipntr,  self.workd, self.workl,
+                                    self.ipntr, self.workd, self.workl,
                                     self.info)
         else:
             self.ido, self.tol, self.resid, self.v, self.iparam, self.ipntr, self.info =\
@@ -902,6 +902,7 @@ def _aslinearoperator_with_dtype(m):
         m.dtype = (m * x).dtype
     return m
 
+
 class SpLuInv(LinearOperator):
     """
     SpLuInv:
@@ -921,6 +922,7 @@ class SpLuInv(LinearOperator):
                     + 1j * self.M_lu.solve(np.imag(x).astype(self.dtype)))
         else:
             return self.M_lu.solve(x.astype(self.dtype))
+
 
 class LuInv(LinearOperator):
     """
@@ -1009,6 +1011,7 @@ class IterOpInv(LinearOperator):
                              "%s did not converge (info = %i)."
                              % (self.ifunc.__name__, info))
         return b
+
 
 def get_inv_matvec(M, symmetric=False, tol=0):
     if isdense(M):

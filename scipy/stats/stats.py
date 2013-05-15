@@ -269,7 +269,7 @@ __all__ = ['find_repeats', 'gmean', 'hmean', 'cmedian', 'mode',
            'ss', 'square_of_sums',
            'fastsort', 'rankdata',
            'nanmean', 'nanstd', 'nanmedian',
-          ]
+           ]
 
 
 def find_repeats(arr):
@@ -304,6 +304,7 @@ def find_repeats(arr):
 #######
 ### NAN friendly functions
 ########
+
 
 def nanmean(x, axis=0):
     """
@@ -344,6 +345,7 @@ def nanmean(x, axis=0):
 
     x[np.isnan(x)] = 0
     return np.mean(x,axis)/factor
+
 
 def nanstd(x, axis=0, bias=False):
     """
@@ -406,6 +408,7 @@ def nanstd(x, axis=0, bias=False):
         m2c = m2 / (n - 1.)
     return np.sqrt(m2c)
 
+
 def _nanmedian(arr1d):  # This only works on 1d arrays
     """Private function for rank a arrays. Compute the median ignoring Nan.
 
@@ -424,6 +427,7 @@ def _nanmedian(arr1d):  # This only works on 1d arrays
     if x.size == 0:
         return np.nan
     return np.median(x)
+
 
 def nanmedian(x, axis=0):
     """
@@ -529,16 +533,17 @@ def gmean(a, axis=0, dtype=None):
     arrays automatically mask any non-finite values.
 
     """
-    if not isinstance(a, np.ndarray): #if not an ndarray object attempt to convert it
-        log_a=np.log(np.array(a, dtype=dtype))
-    elif dtype: #Must change the default dtype allowing array type
+    if not isinstance(a, np.ndarray):  # if not an ndarray object attempt to convert it
+        log_a = np.log(np.array(a, dtype=dtype))
+    elif dtype:  # Must change the default dtype allowing array type
         if isinstance(a,np.ma.MaskedArray):
-            log_a=np.log(np.ma.asarray(a, dtype=dtype))
+            log_a = np.log(np.ma.asarray(a, dtype=dtype))
         else:
-            log_a=np.log(np.asarray(a, dtype=dtype))
+            log_a = np.log(np.asarray(a, dtype=dtype))
     else:
         log_a = np.log(a)
     return np.exp(log_a.mean(axis=axis))
+
 
 def hmean(a, axis=0, dtype=None):
     """
@@ -581,13 +586,13 @@ def hmean(a, axis=0, dtype=None):
 
     """
     if not isinstance(a, np.ndarray):
-        a=np.array(a, dtype=dtype)
-    if np.all(a >0): # Harmonic mean only defined if greater than zero
+        a = np.array(a, dtype=dtype)
+    if np.all(a > 0):  # Harmonic mean only defined if greater than zero
         if isinstance(a, np.ma.MaskedArray):
             size = a.count(axis)
         else:
             if axis is None:
-                a=a.ravel()
+                a = a.ravel()
                 size = a.shape[0]
             else:
                 size = a.shape[axis]
@@ -651,7 +656,7 @@ def cmedian(a, numbins=1000):
     else:
         cfbelow = cumhist[cfbin-1]       # cum. freq. below bin
     freq = hist[cfbin]                  # frequency IN the 50%ile bin
-    median = LRL + ((n/2.0-cfbelow)/float(freq))*binsize # MEDIAN
+    median = LRL + ((n/2.0-cfbelow)/float(freq))*binsize  # MEDIAN
     return median
 
 
@@ -707,6 +712,7 @@ def mode(a, axis=0):
         oldmostfreq = mostfrequent
     return mostfrequent, oldcounts
 
+
 def mask_to_limits(a, limits, inclusive):
     """Mask an array for values outside of given limits.
 
@@ -748,6 +754,7 @@ def mask_to_limits(a, limits, inclusive):
         raise ValueError("No array values within given limits")
     return am
 
+
 def tmean(a, limits=None, inclusive=(True, True)):
     """
     Compute the trimmed mean
@@ -788,11 +795,13 @@ def tmean(a, limits=None, inclusive=(True, True)):
     am = mask_to_limits(a.ravel(), limits, inclusive)
     return am.mean()
 
+
 def masked_var(am):
     m = am.mean()
     s = ma.add.reduce((am - m)**2)
     n = am.count() - 1.0
     return s / n
+
 
 def tvar(a, limits=None, inclusive=(True, True)):
     """
@@ -829,6 +838,7 @@ def tvar(a, limits=None, inclusive=(True, True)):
     am = mask_to_limits(a, limits, inclusive)
     return masked_var(am)
 
+
 def tmin(a, lowerlimit=None, axis=0, inclusive=True):
     """
     Compute the trimmed minimum
@@ -861,6 +871,7 @@ def tmin(a, lowerlimit=None, axis=0, inclusive=True):
     am = mask_to_limits(a, (lowerlimit, None), (inclusive, False))
     return ma.minimum.reduce(am, axis)
 
+
 def tmax(a, upperlimit, axis=0, inclusive=True):
     """
     Compute the trimmed maximum
@@ -891,6 +902,7 @@ def tmax(a, upperlimit, axis=0, inclusive=True):
     a, axis = _chk_asarray(a, axis)
     am = mask_to_limits(a, (None, upperlimit), (False, inclusive))
     return ma.maximum.reduce(am, axis)
+
 
 def tstd(a, limits=None, inclusive=(True, True)):
     """
@@ -1076,6 +1088,7 @@ def skew(a, axis=0, bias=True):
         return vals.item()
     return vals
 
+
 def kurtosis(a, axis=0, fisher=True, bias=True):
     """
     Computes the kurtosis (Fisher or Pearson) of a dataset.
@@ -1134,12 +1147,13 @@ def kurtosis(a, axis=0, fisher=True, bias=True):
             np.place(vals, can_correct, nval+3.0)
 
     if vals.ndim == 0:
-        vals = vals.item() # array scalar
+        vals = vals.item()  # array scalar
 
     if fisher:
         return vals - 3
     else:
         return vals
+
 
 def describe(a, axis=0):
     """
@@ -1179,7 +1193,7 @@ def describe(a, axis=0):
     """
     a, axis = _chk_asarray(a, axis)
     n = a.shape[axis]
-    #mm = (np.minimum.reduce(a), np.maximum.reduce(a))
+    # mm = (np.minimum.reduce(a), np.maximum.reduce(a))
     mm = (np.min(a, axis=axis), np.max(a, axis=axis))
     m = np.mean(a, axis=axis)
     v = np.var(a, axis=axis, ddof=1)
@@ -1190,6 +1204,7 @@ def describe(a, axis=0):
 #####################################
 ########  NORMALITY TESTS  ##########
 #####################################
+
 
 def skewtest(a, axis=0):
     """
@@ -1236,6 +1251,7 @@ def skewtest(a, axis=0):
     Z = delta * np.log(y / alpha + np.sqrt((y / alpha) ** 2 + 1))
     return Z, 2 * distributions.norm.sf(np.abs(Z))
 
+
 def kurtosistest(a, axis=0):
     """
     Tests whether a dataset has normal kurtosis
@@ -1275,22 +1291,22 @@ def kurtosistest(a, axis=0):
             "kurtosistest only valid for n>=20 ... continuing anyway, n=%i" %
             int(n))
     b2 = kurtosis(a, axis, fisher=False)
-    E = 3.0*(n-1) /(n+1)
+    E = 3.0*(n-1) / (n+1)
     varb2 = 24.0*n*(n-2)*(n-3) / ((n+1)*(n+1)*(n+3)*(n+5))
     x = (b2-E)/np.sqrt(varb2)
-    sqrtbeta1 = 6.0*(n*n-5*n+2)/((n+7)*(n+9)) * np.sqrt((6.0*(n+3)*(n+5))/
+    sqrtbeta1 = 6.0*(n*n-5*n+2)/((n+7)*(n+9)) * np.sqrt((6.0*(n+3)*(n+5)) /
                                                        (n*(n-2)*(n-3)))
-    A = 6.0 + 8.0/sqrtbeta1 *(2.0/sqrtbeta1 + np.sqrt(1+4.0/(sqrtbeta1**2)))
-    term1 = 1 -2/(9.0*A)
-    denom = 1 +x*np.sqrt(2/(A-4.0))
+    A = 6.0 + 8.0/sqrtbeta1 * (2.0/sqrtbeta1 + np.sqrt(1+4.0/(sqrtbeta1**2)))
+    term1 = 1 - 2/(9.0*A)
+    denom = 1 + x*np.sqrt(2/(A-4.0))
     denom = np.where(denom < 0, 99, denom)
     term2 = np.where(denom < 0, term1, np.power((1-2.0/A)/denom,1/3.0))
-    Z = ( term1 - term2 ) / np.sqrt(2/(9.0*A))
+    Z = (term1 - term2) / np.sqrt(2/(9.0*A))
     Z = np.where(denom == 99, 0, Z)
     if Z.ndim == 0:
         Z = Z[()]
-    #JPNote: p-value sometimes larger than 1
-    #zprob uses upper tail, so Z needs to be positive
+    # JPNote: p-value sometimes larger than 1
+    # zprob uses upper tail, so Z needs to be positive
     return Z, 2 * distributions.norm.sf(np.abs(Z))
 
 
@@ -1543,7 +1559,7 @@ def _compute_qth_percentile(sorted, per, interpolation_method, axis):
         elif interpolation_method == 'fraction':
             pass  # keep idx as fraction and interpolate
         else:
-            raise ValueError("interpolation_method can only be 'fraction', " \
+            raise ValueError("interpolation_method can only be 'fraction', "
                              "'lower' or 'higher'")
 
     i = int(idx)
@@ -1682,8 +1698,8 @@ def histogram2(a, bins):
     """
     # comment: probably obsoleted by numpy.histogram()
     n = np.searchsorted(np.sort(a), bins)
-    n = np.concatenate([ n, [len(a)]])
-    return n[ 1:]-n[:-1]
+    n = np.concatenate([n, [len(a)]])
+    return n[1:]-n[:-1]
 
 
 def histogram(a, numbins=10, defaultlimits=None, weights=None, printextras=False):
@@ -1750,8 +1766,8 @@ def histogram(a, numbins=10, defaultlimits=None, weights=None, printextras=False
     extrapoints = len([v for v in a
                        if defaultlimits[0] > v or v > defaultlimits[1]])
     if extrapoints > 0 and printextras:
-        warnings.warn("Points outside given histogram range = %s" \
-                      %extrapoints)
+        warnings.warn("Points outside given histogram range = %s"
+                      % extrapoints)
     return (hist, defaultlimits[0], binsize, extrapoints)
 
 
@@ -1975,7 +1991,7 @@ def sem(a, axis=0, ddof=1):
     """
     a, axis = _chk_asarray(a, axis)
     n = a.shape[axis]
-    s = np.std(a,axis=axis, ddof=ddof) / np.sqrt(n) #JP check normalization
+    s = np.std(a,axis=axis, ddof=ddof) / np.sqrt(n)  # JP check normalization
     return s
 
 
@@ -2140,7 +2156,6 @@ def threshold(a, threshmin=None, threshmax=None, newval=0):
     return a
 
 
-
 def sigmaclip(a, low=4., high=4.):
     """
     Iterative sigma-clipping of array elements.
@@ -2201,7 +2216,7 @@ def sigmaclip(a, low=4., high=4.):
         size = c.size
         critlower = c_mean - c_std*low
         critupper = c_mean + c_std*high
-        c = c[(c>critlower) & (c<critupper)]
+        c = c[(c > critlower) & (c < critupper)]
         delta = size-c.size
     return c, critlower, critupper
 
@@ -2279,6 +2294,7 @@ def trim1(a, proportiontocut, tail='right'):
         uppercut = len(a)
     return a[lowercut:uppercut]
 
+
 def trim_mean(a, proportiontocut):
     """
     Return mean of array after trimming distribution from both lower and upper
@@ -2351,7 +2367,7 @@ def f_oneway(*args):
     .. [2] Heiman, G.W.  Research Methods in Statistics. 2002.
 
     """
-    args = list(map(np.asarray, args)) # convert to an numpy array
+    args = list(map(np.asarray, args))  # convert to an numpy array
     na = len(args)              # ANOVA on 'na' groups, each in it's own array
     alldata = np.concatenate(args)
     bign = len(alldata)
@@ -2506,7 +2522,7 @@ def fisher_exact(table, alternative='two-sided'):
 
     n1 = c[0,0] + c[0,1]
     n2 = c[1,0] + c[1,1]
-    n  = c[0,0] + c[1,0]
+    n = c[0,0] + c[1,0]
 
     def binary_search(n, n1, n2, side):
         """Binary search for where to begin lower/upper halves in two-sided
@@ -2842,10 +2858,11 @@ def kendalltau(x, y, initial_lexsort=True):
     x = np.asarray(x).ravel()
     y = np.asarray(y).ravel()
     n = np.int64(len(x))
-    temp = list(range(n)) # support structure used by mergesort
+    temp = list(range(n))  # support structure used by mergesort
     # this closure recursively sorts sections of perm[] by comparing
     # elements of y[perm[]] using temp[] as support
     # returns the number of swaps required by an equivalent bubble sort
+
     def mergesort(offs, length):
         exchcnt = 0
         if length == 1:
@@ -2877,7 +2894,7 @@ def kendalltau(x, y, initial_lexsort=True):
                 d = (offs + i) - (middle + k)
                 k += 1
             if d > 0:
-                exchcnt += d;
+                exchcnt += d
             i += 1
         perm[offs:offs+length] = temp[0:length]
         return exchcnt
@@ -3011,7 +3028,7 @@ def linregress(x, y=None):
             r = 1.0
         elif (r < -1.0):
             r = -1.0
-    #z = 0.5*log((1.0+r+TINY)/(1.0-r+TINY))
+    # z = 0.5*log((1.0+r+TINY)/(1.0-r+TINY))
     df = n-2
     t = r*np.sqrt(df/((1.0-r+TINY)*(1.0+r+TINY)))
     prob = distributions.t.sf(np.abs(t),df)*2
@@ -3081,7 +3098,7 @@ def ttest_1samp(a, popmean, axis=0):
     """
     a, axis = _chk_asarray(a, axis)
     n = a.shape[axis]
-    df= n - 1
+    df = n - 1
 
     d = np.mean(a, axis) - popmean
     v = np.var(a, axis, ddof=1)
@@ -3095,7 +3112,7 @@ def ttest_1samp(a, popmean, axis=0):
 
 def _ttest_finish(df,t):
     """Common code between all 3 t-test functions."""
-    prob = distributions.t.sf(np.abs(t), df) * 2 #use np.abs to get upper tail
+    prob = distributions.t.sf(np.abs(t), df) * 2  # use np.abs to get upper tail
     if t.ndim == 0:
         t = t[()]
 
@@ -3396,7 +3413,7 @@ def kstest(rvs, cdf, args=(), N=20, alternative='two-sided', mode='approx',
 
     """
     if isinstance(rvs, string_types):
-        #cdf = getattr(stats, rvs).cdf
+        # cdf = getattr(stats, rvs).cdf
         if (not cdf) or (cdf == rvs):
             cdf = getattr(distributions, rvs).cdf
             rvs = getattr(distributions, rvs).rvs
@@ -3433,10 +3450,11 @@ def kstest(rvs, cdf, args=(), N=20, alternative='two-sided', mode='approx',
             return D, distributions.kstwobign.sf(D*np.sqrt(N))
         if mode == 'approx':
             pval_two = distributions.kstwobign.sf(D*np.sqrt(N))
-            if N > 2666 or pval_two > 0.80 - N*0.3/1000.0 :
+            if N > 2666 or pval_two > 0.80 - N*0.3/1000.0:
                 return D, distributions.kstwobign.sf(D*np.sqrt(N))
             else:
                 return D, distributions.ksone.sf(D,N)*2
+
 
 def chisquare(f_obs, f_exp=None, ddof=0):
     """
@@ -3470,9 +3488,9 @@ def chisquare(f_obs, f_exp=None, ddof=0):
     The default degrees of freedom, k-1, are for the case when no parameters
     of the distribution are estimated. If p parameters are estimated by
     efficient maximum likelihood then the correct degrees of freedom are
-    k-1-p. If the parameters are estimated in a different way, then then
-    the dof can be between k-1-p and k-1. However, it is also possible that
-    the asymptotic distributions is not a chisquare, in which case this
+    k-1-p. If the parameters are estimated in a different way, then the
+    dof can be between k-1-p and k-1. However, it is also possible that
+    the asymptotic distribution is not a chisquare, in which case this
     test is not appropriate.
 
     References
@@ -3565,7 +3583,7 @@ def ks_2samp(data1, data2):
     cdf1 = np.searchsorted(data1,data_all,side='right')/(1.0*n1)
     cdf2 = (np.searchsorted(data2,data_all,side='right'))/(1.0*n2)
     d = np.max(np.absolute(cdf1-cdf2))
-    #Note: d absolute not signed distance
+    # Note: d absolute not signed distance
     en = np.sqrt(n1*n2/float(n1+n2))
     try:
         prob = ksprob((en+0.12+0.11/en)*d)
@@ -3611,12 +3629,12 @@ def mannwhitneyu(x, y, use_continuity=True):
     n2 = len(y)
     ranked = rankdata(np.concatenate((x,y)))
     rankx = ranked[0:n1]       # get the x-ranks
-    #ranky = ranked[n1:]        # the rest are y-ranks
+    # ranky = ranked[n1:]        # the rest are y-ranks
     u1 = n1*n2 + (n1*(n1+1))/2.0 - np.sum(rankx,axis=0)  # calc U for x
     u2 = n1*n2 - u1                            # remainder is U for y
     bigu = max(u1,u2)
     smallu = min(u1,u2)
-    #T = np.sqrt(tiecorrect(ranked))  # correction factor for tied scores
+    # T = np.sqrt(tiecorrect(ranked))  # correction factor for tied scores
     T = tiecorrect(ranked)
     if T == 0:
         raise ValueError('All numbers are identical in amannwhitneyu')
@@ -3627,7 +3645,7 @@ def mannwhitneyu(x, y, use_continuity=True):
         z = abs((bigu-0.5-n1*n2/2.0) / sd)
     else:
         z = abs((bigu-n1*n2/2.0) / sd)  # normal approximation for prob calc
-    return smallu, distributions.norm.sf(z)  #(1.0 - zprob(z))
+    return smallu, distributions.norm.sf(z)  # (1.0 - zprob(z))
 
 
 def ranksums(x, y):
@@ -3712,7 +3730,7 @@ def kruskal(*args):
     .. [1] http://en.wikipedia.org/wiki/Kruskal-Wallis_one-way_analysis_of_variance
 
     """
-    args = list(map(np.asarray, args)) # convert to a numpy array
+    args = list(map(np.asarray, args))  # convert to a numpy array
     na = len(args)               # Kruskal-Wallis on 'na' groups, each in it's own array
     if na < 2:
         raise ValueError("Need at least two groups in stats.kruskal()")
@@ -3797,7 +3815,7 @@ def friedmanchisquare(*args):
     c = 1 - ties / float(k*(k*k-1)*n)
 
     ssbn = pysum(pysum(data)**2)
-    chisq = ( 12.0 / (k*n*(k+1)) * ssbn - 3*n*(k+1) ) / c
+    chisq = (12.0 / (k*n*(k+1)) * ssbn - 3*n*(k+1)) / c
     return chisq, chisqprob(chisq,k-1)
 
 
@@ -3806,6 +3824,7 @@ def friedmanchisquare(*args):
 #####################################
 
 zprob = special.ndtr
+
 
 def chisqprob(chisq, df):
     """
@@ -3830,6 +3849,7 @@ def chisqprob(chisq, df):
 
 ksprob = special.kolmogorov
 fprob = special.fdtrc
+
 
 def betai(a, b, x):
     """
@@ -3864,6 +3884,7 @@ def betai(a, b, x):
 #####################################
 #######  ANOVA CALCULATIONS  #######
 #####################################
+
 
 def glm(data, para):
     """
@@ -3917,10 +3938,11 @@ def f_value_wilks_lambda(ER, EF, dfnum, dfden, a, b):
     if (a-1)**2 + (b-1)**2 == 5:
         q = 1
     else:
-        q = np.sqrt( ((a-1)**2*(b-1)**2 - 2) / ((a-1)**2 + (b-1)**2 -5) )
+        q = np.sqrt(((a-1)**2*(b-1)**2 - 2) / ((a-1)**2 + (b-1)**2 - 5))
     n_um = (1 - lmbda**(1.0/q))*(a-1)*(b-1)
     d_en = lmbda**(1.0/q) / (n_um*q - 0.5*(a-1)*(b-1) + 1)
     return n_um / d_en
+
 
 def f_value(ER, EF, dfR, dfF):
     """
@@ -3948,7 +3970,6 @@ def f_value(ER, EF, dfR, dfF):
 
     """
     return ((ER-EF)/float(dfR-dfF) / (EF/float(dfF)))
-
 
 
 def f_value_multivariate(ER, EF, dfnum, dfden):

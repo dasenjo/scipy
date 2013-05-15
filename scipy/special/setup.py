@@ -12,15 +12,16 @@ from numpy.distutils.misc_util import get_numpy_include_dirs
 try:
     from numpy.distutils.misc_util import get_info
 except ImportError:
-    raise ValueError("numpy >= 1.4 is required (detected %s from %s)" % \
+    raise ValueError("numpy >= 1.4 is required (detected %s from %s)" %
                      (numpy.__version__, numpy.__file__))
+
 
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration
     config = Configuration('special', parent_package, top_path)
 
     define_macros = []
-    if sys.platform=='win32':
+    if sys.platform == 'win32':
 #        define_macros.append(('NOINFINITIES',None))
 #        define_macros.append(('NONANS',None))
         define_macros.append(('_USE_MATH_DEFINES',None))
@@ -29,7 +30,7 @@ def configuration(parent_package='',top_path=None):
     inc_dirs = [get_python_inc()]
     if inc_dirs[0] != get_python_inc(plat_specific=1):
         inc_dirs.append(get_python_inc(plat_specific=1))
-    inc_dirs.append(get_numpy_include_dirs())
+    inc_dirs.insert(0, get_numpy_include_dirs())
 
     # C libraries
     config.add_library('sc_c_misc',sources=[join('c_misc','*.c')],
@@ -64,7 +65,7 @@ def configuration(parent_package='',top_path=None):
                          sources=['_ufuncs.c', 'sf_error.c', '_logit.c.src',
                                   "amos_wrappers.c", "cdf_wrappers.c", "specfun_wrappers.c"],
                          include_dirs=[curdir],
-                         define_macros = define_macros,
+                         define_macros=define_macros,
                          extra_info=get_info("npymath"))
 
     # Extension _ufuncs_cxx
