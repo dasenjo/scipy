@@ -156,6 +156,7 @@ from .nonlin import *
 from .slsqp import fmin_slsqp
 from .nnls import nnls
 from ._basinhopping import basinhopping
+from .fire import fmin_fire
 
 __all__ = [s for s in dir() if not s.startswith('_')]
 from numpy.testing import Tester

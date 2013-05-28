@@ -65,12 +65,9 @@ def minimize(fun, x0, args=(), method='BFGS', jac=None, hess=None,
             - 'TNC'
             - 'COBYLA'
             - 'SLSQP'
-<<<<<<< HEAD
             - 'FIRE'
-=======
             - 'dogleg'
             - 'trust-ncg'
->>>>>>> upstream/master
 
     jac : bool or callable, optional
         Jacobian of objective function. Only for CG, BFGS, Newton-CG,

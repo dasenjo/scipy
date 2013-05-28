@@ -5,11 +5,10 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy.optimize as opt
 
-
 __all__ = ['fmin_fire']
 
 
-def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
+def fmin_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
                    maxiter=100000, dt=0.1, dtmax=1.0, maxmove=0.1,
                    Nmin=5, finc=1.1, fdec=0.5, astart=0.1, fa=0.99,
                    disp=False, eps=1e-8):
@@ -67,11 +66,6 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
     Phys. Rev. Lett. 97, 170201 (2006).
 
     """
-    coords = np.array(x0)
-    a = astart
-    Nsteps = 0
-    n = len(coords)
-    v = np.zeros(n)
 
     if jac is None:
         if func is not None:
@@ -86,8 +80,29 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
         def fprime(x):
             return jac(x, *args)
 
-        def fun(x):
-            return func(x, *args)
+        if func is not None:
+            def fun(x):
+                return func(x, *args)
+
+    res = _minimize_fire(x0, fprime, tol=tol, maxiter=maxiter,
+                         dt=dt, dtmax=dtmax, maxmove=maxmove,
+                         Nmin=Nmin, finc=finc, fdec=fdec,
+                         astart=astart, fa=fa, disp=disp)
+    if func is not None:
+        res.fun = fun(res.x)
+
+    return res
+
+
+def _minimize_fire(x0, fprime, tol=1.0e-3, maxiter=100000, dt=0.1,
+                   dtmax=1.0, maxmove=0.1, Nmin=5, finc=1.1,
+                   fdec=0.5, astart=0.1, fa=0.99, disp=False):
+
+    coords = np.array(x0)
+    a = astart
+    Nsteps = 0
+    n = len(coords)
+    v = np.zeros(n)
 
     for steps in xrange(maxiter):
 
@@ -135,19 +150,28 @@ def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
 
 
 def test_fire():
-    from levi import Levi as func
+    from beale import Beale as func
     f = func()
 
     def grad(coords):
         return f.getEnergyGradient(coords)[1]
+
+    def fun(coords):
+        return f.getEnergyGradient(coords)[0]
+
     x = [np.random.uniform(f.xmin[0], f.xmax[0]), np.random.uniform(f.xmin[1], f.xmax[1])]
     print('\nStarting point x=', x)
-    res = _minimize_fire(x, jac=grad)
+    res = fmin_fire(x, jac=grad, func=fun)
     print('\nFIRE')
     print(res)
-    res = opt.minimize(f.getEnergy, x, method='L-BFGS-B',
+    res = opt.minimize(f.getEnergy, x, method='BFGS',
                        options={'gtol': 1e-2})
-    print('\nL-BFGS')
-    print(res, '\n')
+    print('\nBFGS')
+    print(res)
+    from ._minimize import minimize
+    res = minimize(fun, x, method='FIRE', jac=grad)
+    print('\n Using FIRE from minimize')
+    print(res,'\n')
+
 if __name__ == "__main__":
     test_fire()

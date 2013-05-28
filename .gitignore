@@ -1,3 +1,10 @@
+*.pyf
+*.f
+*.c
+*.h
+*.cxx
+.project
+.pydevproject
 *.pyc
 *.swp
 *.pyd
