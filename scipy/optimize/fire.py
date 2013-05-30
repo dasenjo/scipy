@@ -3,7 +3,7 @@ fire: The FIRE optimization algorithm
 """
 from __future__ import division, print_function, absolute_import
 import numpy as np
-import scipy.optimize as opt
+from scipy.optimize import Result, approx_fprime
 
 __all__ = ['fmin_fire']
 
@@ -11,7 +11,7 @@ __all__ = ['fmin_fire']
 def fmin_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
                    maxiter=100000, dt=0.1, dtmax=1.0, maxmove=0.1,
                    Nmin=5, finc=1.1, fdec=0.5, astart=0.1, fa=0.99,
-                   disp=False, eps=1e-8):
+                   disp=False, eps=1.e-8):
     """
     Minimize a function func using the FIRE algorithm.
 
@@ -67,10 +67,20 @@ def fmin_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
 
     """
 
+    return _minimize_fire(x0, jac=jac, func=func, tol=tol, maxiter=maxiter,
+                         dt=dt, dtmax=dtmax, maxmove=maxmove, args=args,
+                         Nmin=Nmin, finc=finc, fdec=fdec,
+                         astart=astart, fa=fa, disp=disp, eps=eps)
+
+
+def _minimize_fire(x0, jac=None, func=None, args=(), tol=1.0e-3, maxiter=100000,
+                   dt=0.1, dtmax=1.0, maxmove=0.1, Nmin=5, finc=1.1,
+                   fdec=0.5, astart=0.1, fa=0.99, disp=False, eps=1.e-8):
+
     if jac is None:
         if func is not None:
             def fprime(x):
-                return opt.approx_fprime(x, func, eps, *args)
+                return approx_fprime(x, func, eps, *args)
 
             def fun(x):
                 return func(x, *args)
@@ -83,20 +93,6 @@ def fmin_fire(x0, jac=None, func=None, args=(), tol=1.0e-3,
         if func is not None:
             def fun(x):
                 return func(x, *args)
-
-    res = _minimize_fire(x0, fprime, tol=tol, maxiter=maxiter,
-                         dt=dt, dtmax=dtmax, maxmove=maxmove,
-                         Nmin=Nmin, finc=finc, fdec=fdec,
-                         astart=astart, fa=fa, disp=disp)
-    if func is not None:
-        res.fun = fun(res.x)
-
-    return res
-
-
-def _minimize_fire(x0, fprime, tol=1.0e-3, maxiter=100000, dt=0.1,
-                   dtmax=1.0, maxmove=0.1, Nmin=5, finc=1.1,
-                   fdec=0.5, astart=0.1, fa=0.99, disp=False):
 
     coords = np.array(x0)
     a = astart
@@ -145,33 +141,10 @@ def _minimize_fire(x0, fprime, tol=1.0e-3, maxiter=100000, dt=0.1,
         successful = False
         msg = 'Maximum number of iterations reached'
 
-    return opt.Result(jac=grad, nfev=0, njev=steps, nit=steps,
+    res = Result(jac=grad, nfev=0, njev=steps, nit=steps,
                       message=msg, x=coords, success=successful)
 
+    if func is not None:
+        res.fun = fun(res.x)
 
-def test_fire():
-    from beale import Beale as func
-    f = func()
-
-    def grad(coords):
-        return f.getEnergyGradient(coords)[1]
-
-    def fun(coords):
-        return f.getEnergyGradient(coords)[0]
-
-    x = [np.random.uniform(f.xmin[0], f.xmax[0]), np.random.uniform(f.xmin[1], f.xmax[1])]
-    print('\nStarting point x=', x)
-    res = fmin_fire(x, jac=grad, func=fun)
-    print('\nFIRE')
-    print(res)
-    res = opt.minimize(f.getEnergy, x, method='BFGS',
-                       options={'gtol': 1e-2})
-    print('\nBFGS')
-    print(res)
-    from ._minimize import minimize
-    res = minimize(fun, x, method='FIRE', jac=grad)
-    print('\n Using FIRE from minimize')
-    print(res,'\n')
-
-if __name__ == "__main__":
-    test_fire()
+    return res

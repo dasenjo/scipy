@@ -386,7 +386,7 @@ def minimize(fun, x0, args=(), method='BFGS', jac=None, hess=None,
         return _minimize_slsqp(fun, x0, args, jac, bounds,
                                constraints, **options)
     elif meth == 'fire':
-        return _minimize_fire(x0, jac, args, **options)
+        return _minimize_fire(x0, jac=jac, func=fun, args=args, **options)
     elif meth == 'dogleg':
         return _minimize_dogleg(fun, x0, args, jac, hess,
                                 callback=callback, **options)
